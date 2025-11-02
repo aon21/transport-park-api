@@ -7,4 +7,6 @@
 /public/bundles/
 /var/
 /vendor/
+/memory_docs
+.idea/
 ###< symfony/framework-bundle ###
