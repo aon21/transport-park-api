@@ -26,7 +26,7 @@ class Driver
     private ?string $licenseNumber = null;
 
     #[ORM\ManyToOne(targetEntity: FleetSet::class, inversedBy: 'drivers')]
-    #[ORM\JoinColumn(nullable: true)]
+    #[ORM\JoinColumn(name: 'fleet_set_id', referencedColumnName: 'id', nullable: true)]
     private ?FleetSet $fleetSet = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]

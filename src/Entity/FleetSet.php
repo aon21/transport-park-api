@@ -22,11 +22,11 @@ class FleetSet
     private ?string $name = null;
 
     #[ORM\ManyToOne(targetEntity: Truck::class)]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(name: 'truck_id', referencedColumnName: 'id', nullable: false)]
     private ?Truck $truck = null;
 
     #[ORM\ManyToOne(targetEntity: Trailer::class)]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(name: 'trailer_id', referencedColumnName: 'id', nullable: false)]
     private ?Trailer $trailer = null;
 
     /**
@@ -73,6 +73,7 @@ class FleetSet
     public function setName(string $name): static
     {
         $this->name = $name;
+
         return $this;
     }
 
@@ -84,6 +85,7 @@ class FleetSet
     public function setTruck(?Truck $truck): static
     {
         $this->truck = $truck;
+
         return $this;
     }
 
@@ -95,6 +97,7 @@ class FleetSet
     public function setTrailer(?Trailer $trailer): static
     {
         $this->trailer = $trailer;
+
         return $this;
     }
 
@@ -112,6 +115,7 @@ class FleetSet
             $this->drivers->add($driver);
             $driver->setFleetSet($this);
         }
+
         return $this;
     }
 
@@ -122,6 +126,7 @@ class FleetSet
                 $driver->setFleetSet(null);
             }
         }
+
         return $this;
     }
 
@@ -133,6 +138,7 @@ class FleetSet
     public function setCreatedAt(\DateTimeInterface $createdAt): static
     {
         $this->createdAt = $createdAt;
+
         return $this;
     }
 
@@ -144,16 +150,17 @@ class FleetSet
     public function setUpdatedAt(\DateTimeInterface $updatedAt): static
     {
         $this->updatedAt = $updatedAt;
+
         return $this;
     }
 
     /**
-     * Calculate the fleet set status based on truck and trailer status
-     * 
+     * Calculate fleet status based on business rules
+     *
      * Status Rules:
-     * - 'downtime': Either truck OR trailer status is 'in_service'
-     * - 'works': Both truck AND trailer are operational AND has drivers assigned
-     * - 'free': Both operational, no drivers assigned
+     * - 'downtime': truck OR trailer status is 'in_service', OR has active service orders
+     * - 'works': both operational AND has drivers
+     * - 'free': both operational, no drivers
      */
     public function getStatus(): string
     {
@@ -162,7 +169,7 @@ class FleetSet
             return 'downtime';
         }
 
-        // Both are operational - check if drivers are assigned
+        // Both are operational - check if has drivers
         if ($this->drivers->count() > 0) {
             return 'works';
         }
@@ -170,3 +177,4 @@ class FleetSet
         return 'free';
     }
 }
+

@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Entity\FleetSet;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use Symfony\Component\Uid\Uuid;
 
 /**
  * @extends ServiceEntityRepository<FleetSet>
@@ -16,6 +17,9 @@ class FleetSetRepository extends ServiceEntityRepository
         parent::__construct($registry, FleetSet::class);
     }
 
+    /**
+     * Save a fleet set entity
+     */
     public function save(FleetSet $entity, bool $flush = false): void
     {
         $this->getEntityManager()->persist($entity);
@@ -25,6 +29,9 @@ class FleetSetRepository extends ServiceEntityRepository
         }
     }
 
+    /**
+     * Remove a fleet set entity
+     */
     public function remove(FleetSet $entity, bool $flush = false): void
     {
         $this->getEntityManager()->remove($entity);
@@ -35,18 +42,18 @@ class FleetSetRepository extends ServiceEntityRepository
     }
 
     /**
-     * Find all fleet sets with their trucks, trailers, and drivers loaded
+     * Find all fleet sets with their relationships loaded (truck, trailer, drivers)
      *
      * @return FleetSet[]
      */
     public function findAllWithRelations(): array
     {
-        return $this->createQueryBuilder('fs')
-            ->leftJoin('fs.truck', 't')
-            ->leftJoin('fs.trailer', 'tr')
-            ->leftJoin('fs.drivers', 'd')
+        return $this->createQueryBuilder('f')
+            ->leftJoin('f.truck', 't')
+            ->leftJoin('f.trailer', 'tr')
+            ->leftJoin('f.drivers', 'd')
             ->addSelect('t', 'tr', 'd')
-            ->orderBy('fs.name', 'ASC')
+            ->orderBy('f.name', 'ASC')
             ->getQuery()
             ->getResult();
     }
@@ -56,12 +63,13 @@ class FleetSetRepository extends ServiceEntityRepository
      *
      * @return FleetSet[]
      */
-    public function findByTruck(string $truckId): array
+    public function findByTruck(Uuid $truckId): array
     {
-        return $this->createQueryBuilder('fs')
-            ->andWhere('fs.truck = :truckId')
-            ->setParameter('truckId', $truckId)
-            ->orderBy('fs.name', 'ASC')
+        return $this->createQueryBuilder('f')
+            ->where('f.truck = :truckId')
+            ->setParameter('truckId', $truckId, 'uuid')
+            ->leftJoin('f.drivers', 'd')
+            ->addSelect('d')
             ->getQuery()
             ->getResult();
     }
@@ -71,13 +79,46 @@ class FleetSetRepository extends ServiceEntityRepository
      *
      * @return FleetSet[]
      */
-    public function findByTrailer(string $trailerId): array
+    public function findByTrailer(Uuid $trailerId): array
     {
-        return $this->createQueryBuilder('fs')
-            ->andWhere('fs.trailer = :trailerId')
-            ->setParameter('trailerId', $trailerId)
-            ->orderBy('fs.name', 'ASC')
+        return $this->createQueryBuilder('f')
+            ->where('f.trailer = :trailerId')
+            ->setParameter('trailerId', $trailerId, 'uuid')
+            ->leftJoin('f.drivers', 'd')
+            ->addSelect('d')
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * Find fleet sets with at least one driver
+     *
+     * @return FleetSet[]
+     */
+    public function findActive(): array
+    {
+        return $this->createQueryBuilder('f')
+            ->leftJoin('f.drivers', 'd')
+            ->addSelect('d')
+            ->having('COUNT(d.id) > 0')
+            ->groupBy('f.id')
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * Find fleet sets with no drivers
+     *
+     * @return FleetSet[]
+     */
+    public function findFree(): array
+    {
+        return $this->createQueryBuilder('f')
+            ->leftJoin('f.drivers', 'd')
+            ->having('COUNT(d.id) = 0')
+            ->groupBy('f.id')
             ->getQuery()
             ->getResult();
     }
 }
+
