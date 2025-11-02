@@ -64,4 +64,19 @@ class DriverRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    /**
+     * Find drivers without a fleet set assigned (unassigned drivers)
+     *
+     * @return Driver[]
+     */
+    public function findUnassigned(): array
+    {
+        return $this->createQueryBuilder('d')
+            ->andWhere('d.fleetSet IS NULL')
+            ->orderBy('d.lastName', 'ASC')
+            ->addOrderBy('d.firstName', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
 }
