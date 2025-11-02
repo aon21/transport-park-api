@@ -25,6 +25,10 @@ class Driver
     #[ORM\Column(length: 50, unique: true)]
     private ?string $licenseNumber = null;
 
+    #[ORM\ManyToOne(targetEntity: FleetSet::class, inversedBy: 'drivers')]
+    #[ORM\JoinColumn(name: 'fleet_set_id', referencedColumnName: 'id', nullable: true)]
+    private ?FleetSet $fleetSet = null;
+
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $createdAt = null;
 
@@ -106,6 +110,17 @@ class Driver
     public function setUpdatedAt(\DateTimeInterface $updatedAt): static
     {
         $this->updatedAt = $updatedAt;
+        return $this;
+    }
+
+    public function getFleetSet(): ?FleetSet
+    {
+        return $this->fleetSet;
+    }
+
+    public function setFleetSet(?FleetSet $fleetSet): static
+    {
+        $this->fleetSet = $fleetSet;
         return $this;
     }
 
