@@ -19,7 +19,7 @@ REST API for managing transport park operations including trucks, trailers, driv
 
 ```bash
 # Clone the repository
-git clone <repository-url>
+git clone git@github.com:aon21/transport-park-api.git
 cd transport-park-api
 
 # Install dependencies
