@@ -7,7 +7,7 @@
 /vendor/
 /memory_docs
 .idea/
-
+coverage/
 .phpunit.cache
 /coverage
 /docs
