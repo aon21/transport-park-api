@@ -12,7 +12,6 @@ class DriverFixtures extends Fixture implements DependentFixtureInterface
     public function load(ObjectManager $manager): void
     {
         $drivers = [
-            // Assigned to Fleet Alpha (will make it "works" status)
             [
                 'firstName' => 'John',
                 'lastName' => 'Smith',
@@ -25,21 +24,18 @@ class DriverFixtures extends Fixture implements DependentFixtureInterface
                 'licenseNumber' => 'DL-002345',
                 'fleetSet' => FleetSetFixtures::FLEET_SET_WORKS,
             ],
-            // Assigned to Fleet Gamma (downtime, has drivers but truck in service)
             [
                 'firstName' => 'Ahmed',
                 'lastName' => 'Hassan',
                 'licenseNumber' => 'DL-003456',
                 'fleetSet' => FleetSetFixtures::FLEET_SET_DOWNTIME_TRUCK,
             ],
-            // Assigned to Fleet Delta (downtime, has driver but trailer in service)
             [
                 'firstName' => 'Emma',
                 'lastName' => 'Johnson',
                 'licenseNumber' => 'DL-004567',
                 'fleetSet' => FleetSetFixtures::FLEET_SET_DOWNTIME_TRAILER,
             ],
-            // Unassigned drivers
             [
                 'firstName' => 'Robert',
                 'lastName' => 'Brown',

@@ -2,13 +2,17 @@
 
 namespace App\Service;
 
+use App\Dto\Request\OrderCreateRequest;
+use App\Dto\Request\OrderUpdateRequest;
 use App\Entity\Order;
 use App\Repository\OrderRepository;
 use App\Repository\TruckRepository;
 use App\Repository\TrailerRepository;
 use App\Repository\FleetSetRepository;
+use DateTime;
+use Exception;
 
-class OrderService
+readonly class OrderService
 {
     public function __construct(
         private OrderRepository $orderRepository,
@@ -18,99 +22,152 @@ class OrderService
     ) {
     }
 
-    public function findAll(?string $status = null): array
+    /**
+     * @throws Exception
+     */
+    public function create(OrderCreateRequest $dto): Order
     {
-        return $status 
-            ? $this->orderRepository->findByStatus($status)
-            : $this->orderRepository->findAllWithRelations();
-    }
+        $order = (new Order())
+            ->setOrderNumber($dto->orderNumber)
+            ->setServiceType($dto->serviceType)
+            ->setDescription($dto->description)
+            ->setStatus($dto->status)
+            ->setStartDate(new DateTime($dto->startDate));
 
-    public function findActive(): array
-    {
-        return $this->orderRepository->findActive();
-    }
-
-    public function findById(string $id): ?Order
-    {
-        return $this->orderRepository->find($id);
-    }
-
-    public function create(array $data): Order
-    {
-        $order = new Order();
-        $order->setOrderNumber($data['orderNumber'])
-            ->setServiceType($data['serviceType'])
-            ->setDescription($data['description'])
-            ->setStatus($data['status'])
-            ->setStartDate(new \DateTime($data['startDate']));
-
-        if (isset($data['endDate'])) {
-            $order->setEndDate(new \DateTime($data['endDate']));
-        }
-
-        if (isset($data['truckId'])) {
-            $truck = $this->truckRepository->find($data['truckId']);
-            if ($truck) {
-                $order->setTruck($truck);
-            }
-        }
-
-        if (isset($data['trailerId'])) {
-            $trailer = $this->trailerRepository->find($data['trailerId']);
-            if ($trailer) {
-                $order->setTrailer($trailer);
-            }
-        }
-
-        if (isset($data['fleetSetId'])) {
-            $fleetSet = $this->fleetSetRepository->find($data['fleetSetId']);
-            if ($fleetSet) {
-                $order->setFleetSet($fleetSet);
-            }
-        }
+        $this->setOptionalEndDate($order, $dto->endDate);
+        $this->setOptionalTruck($order, $dto->truckId);
+        $this->setOptionalTrailer($order, $dto->trailerId);
+        $this->setOptionalFleetSet($order, $dto->fleetSetId);
 
         $this->orderRepository->save($order, true);
 
         return $order;
     }
 
-    public function update(Order $order, array $data): Order
+    /**
+     * @throws Exception
+     */
+    public function update(Order $order, OrderUpdateRequest $dto): Order
     {
-        if (isset($data['orderNumber'])) {
-            $order->setOrderNumber($data['orderNumber']);
-        }
-        if (isset($data['serviceType'])) {
-            $order->setServiceType($data['serviceType']);
-        }
-        if (isset($data['description'])) {
-            $order->setDescription($data['description']);
-        }
-        if (isset($data['status'])) {
-            $order->setStatus($data['status']);
-        }
-        if (isset($data['startDate'])) {
-            $order->setStartDate(new \DateTime($data['startDate']));
-        }
-        if (isset($data['endDate'])) {
-            $order->setEndDate(new \DateTime($data['endDate']));
-        }
-
-        if (isset($data['truckId'])) {
-            $truck = $this->truckRepository->find($data['truckId']);
-            $order->setTruck($truck);
-        }
-        if (isset($data['trailerId'])) {
-            $trailer = $this->trailerRepository->find($data['trailerId']);
-            $order->setTrailer($trailer);
-        }
-        if (isset($data['fleetSetId'])) {
-            $fleetSet = $this->fleetSetRepository->find($data['fleetSetId']);
-            $order->setFleetSet($fleetSet);
-        }
+        $this->updateOrderNumber($order, $dto->orderNumber);
+        $this->updateServiceType($order, $dto->serviceType);
+        $this->updateDescription($order, $dto->description);
+        $this->updateStatus($order, $dto->status);
+        $this->updateStartDate($order, $dto->startDate);
+        $this->updateEndDate($order, $dto->endDate);
+        $this->updateTruck($order, $dto->truckId);
+        $this->updateTrailer($order, $dto->trailerId);
+        $this->updateFleetSet($order, $dto->fleetSetId);
 
         $this->orderRepository->save($order, true);
 
         return $order;
+    }
+
+    private function updateOrderNumber(Order $order, ?string $orderNumber): void
+    {
+        if ($orderNumber !== null) {
+            $order->setOrderNumber($orderNumber);
+        }
+    }
+
+    private function updateServiceType(Order $order, ?string $serviceType): void
+    {
+        if ($serviceType !== null) {
+            $order->setServiceType($serviceType);
+        }
+    }
+
+    private function updateDescription(Order $order, ?string $description): void
+    {
+        if ($description !== null) {
+            $order->setDescription($description);
+        }
+    }
+
+    private function updateStatus(Order $order, ?string $status): void
+    {
+        if ($status !== null) {
+            $order->setStatus($status);
+        }
+    }
+
+    /**
+     * @throws Exception
+     */
+    private function updateStartDate(Order $order, ?string $startDate): void
+    {
+        if ($startDate !== null) {
+            $order->setStartDate(new DateTime($startDate));
+        }
+    }
+
+    /**
+     * @throws Exception
+     */
+    private function updateEndDate(Order $order, ?string $endDate): void
+    {
+        if ($endDate !== null) {
+            $order->setEndDate(new DateTime($endDate));
+        }
+    }
+
+    private function updateTruck(Order $order, ?string $truckId): void
+    {
+        if ($truckId === null) {
+            return;
+        }
+
+        $order->setTruck($this->truckRepository->findOrFail($truckId));
+    }
+
+    private function updateTrailer(Order $order, ?string $trailerId): void
+    {
+        if ($trailerId === null) {
+            return;
+        }
+
+        $order->setTrailer($this->trailerRepository->findOrFail($trailerId));
+    }
+
+    private function updateFleetSet(Order $order, ?string $fleetSetId): void
+    {
+        if ($fleetSetId === null) {
+            return;
+        }
+
+        $order->setFleetSet($this->fleetSetRepository->findOrFail($fleetSetId));
+    }
+
+    /**
+     * @throws Exception
+     */
+    private function setOptionalEndDate(Order $order, ?string $endDate): void
+    {
+        if ($endDate !== null) {
+            $order->setEndDate(new DateTime($endDate));
+        }
+    }
+
+    private function setOptionalTruck(Order $order, ?string $truckId): void
+    {
+        if ($truckId !== null) {
+            $order->setTruck($this->truckRepository->findOrFail($truckId));
+        }
+    }
+
+    private function setOptionalTrailer(Order $order, ?string $trailerId): void
+    {
+        if ($trailerId !== null) {
+            $order->setTrailer($this->trailerRepository->findOrFail($trailerId));
+        }
+    }
+
+    private function setOptionalFleetSet(Order $order, ?string $fleetSetId): void
+    {
+        if ($fleetSetId !== null) {
+            $order->setFleetSet($this->fleetSetRepository->findOrFail($fleetSetId));
+        }
     }
 
     public function delete(Order $order): void

@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Entity\Truck;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
  * @extends ServiceEntityRepository<Truck>
@@ -35,17 +36,16 @@ class TruckRepository extends ServiceEntityRepository
     }
 
     /**
-     * Find trucks by status
-     *
-     * @return Truck[]
+     * @throws NotFoundHttpException
      */
-    public function findByStatus(string $status): array
+    public function findOrFail(string $id): Truck
     {
-        return $this->createQueryBuilder('t')
-            ->andWhere('t.status = :status')
-            ->setParameter('status', $status)
-            ->orderBy('t.registrationNumber', 'ASC')
-            ->getQuery()
-            ->getResult();
+        $truck = $this->find($id);
+
+        if (!$truck) {
+            throw new NotFoundHttpException('Truck not found');
+        }
+
+        return $truck;
     }
 }

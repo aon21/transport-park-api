@@ -2,26 +2,25 @@
 
 namespace App\Controller;
 
+use App\Dto\Request\FleetSetCreateRequest;
+use App\Dto\Request\FleetSetUpdateRequest;
 use App\Dto\Response\FleetSetResource;
-use App\Repository\FleetSetRepository;
-use App\Repository\TruckRepository;
-use App\Repository\TrailerRepository;
-use App\Service\FleetStatusService;
+use App\Dto\Response\FleetStatisticsResponse;
 use App\Entity\FleetSet;
+use App\Repository\FleetSetRepository;
+use App\Service\FleetSetService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Annotation\Route;
 
 #[Route('/api/fleet-sets', name: 'api_fleet_sets_')]
 class FleetSetController extends AbstractController
 {
     public function __construct(
-        private FleetSetRepository $fleetSetRepository,
-        private TruckRepository $truckRepository,
-        private TrailerRepository $trailerRepository,
-        private FleetStatusService $fleetStatusService
+        private readonly FleetSetRepository $fleetSetRepository,
+        private readonly FleetSetService    $fleetSetService
     ) {
     }
 
@@ -29,94 +28,48 @@ class FleetSetController extends AbstractController
     public function index(): JsonResponse
     {
         $fleetSets = $this->fleetSetRepository->findAllWithRelations();
-        
+
         return $this->json(FleetSetResource::collection($fleetSets));
     }
 
     #[Route('/statistics', methods: ['GET'])]
     public function statistics(): JsonResponse
     {
-        $fleetSets = $this->fleetSetRepository->findAll();
-        $stats = $this->fleetStatusService->getStatistics($fleetSets);
-        
-        return $this->json($stats);
+        $stats = $this->fleetSetRepository->getFleetStatistics();
+
+        return $this->json(FleetStatisticsResponse::fromArray($stats));
     }
 
     #[Route('/{id}', methods: ['GET'])]
-    public function show(string $id): JsonResponse
+    public function show(FleetSet $fleetSet): JsonResponse
     {
-        $fleetSet = $this->fleetSetRepository->find($id);
-        if (!$fleetSet) {
-            return $this->json(['error' => 'Not found'], Response::HTTP_NOT_FOUND);
-        }
-
         return $this->json(FleetSetResource::fromEntity($fleetSet));
     }
 
     #[Route('', methods: ['POST'])]
-    public function create(Request $request): JsonResponse
+    public function create(#[MapRequestPayload] FleetSetCreateRequest $request): JsonResponse
     {
-        $data = json_decode($request->getContent(), true);
+        $fleetSet = $this->fleetSetService->create($request);
 
-        $truck = $this->truckRepository->find($data['truckId']);
-        $trailer = $this->trailerRepository->find($data['trailerId']);
-
-        if (!$truck || !$trailer) {
-            return $this->json(['error' => 'Truck or Trailer not found'], Response::HTTP_BAD_REQUEST);
-        }
-
-        $fleetSet = new FleetSet();
-        $fleetSet->setName($data['name'])
-            ->setTruck($truck)
-            ->setTrailer($trailer);
-
-        $this->fleetSetRepository->save($fleetSet, true);
-
-        return $this->json(FleetSetResource::fromEntity($fleetSet), Response::HTTP_CREATED);
+        return $this->json(
+            FleetSetResource::fromEntity($fleetSet),
+            Response::HTTP_CREATED
+        );
     }
 
     #[Route('/{id}', methods: ['PUT', 'PATCH'])]
-    public function update(string $id, Request $request): JsonResponse
+    public function update(FleetSet $fleetSet, #[MapRequestPayload] FleetSetUpdateRequest $request): JsonResponse
     {
-        $fleetSet = $this->fleetSetRepository->find($id);
-        if (!$fleetSet) {
-            return $this->json(['error' => 'Not found'], Response::HTTP_NOT_FOUND);
-        }
+        $updatedFleetSet = $this->fleetSetService->update($fleetSet, $request);
 
-        $data = json_decode($request->getContent(), true);
-
-        if (isset($data['name'])) {
-            $fleetSet->setName($data['name']);
-        }
-        if (isset($data['truckId'])) {
-            $truck = $this->truckRepository->find($data['truckId']);
-            if ($truck) {
-                $fleetSet->setTruck($truck);
-            }
-        }
-        if (isset($data['trailerId'])) {
-            $trailer = $this->trailerRepository->find($data['trailerId']);
-            if ($trailer) {
-                $fleetSet->setTrailer($trailer);
-            }
-        }
-
-        $this->fleetSetRepository->save($fleetSet, true);
-
-        return $this->json(FleetSetResource::fromEntity($fleetSet));
+        return $this->json(FleetSetResource::fromEntity($updatedFleetSet));
     }
 
     #[Route('/{id}', methods: ['DELETE'])]
-    public function delete(string $id): JsonResponse
+    public function delete(FleetSet $fleetSet): JsonResponse
     {
-        $fleetSet = $this->fleetSetRepository->find($id);
-        if (!$fleetSet) {
-            return $this->json(['error' => 'Not found'], Response::HTTP_NOT_FOUND);
-        }
-
-        $this->fleetSetRepository->remove($fleetSet, true);
+        $this->fleetSetService->delete($fleetSet);
 
         return $this->json(null, Response::HTTP_NO_CONTENT);
     }
 }
-

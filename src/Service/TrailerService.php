@@ -2,63 +2,69 @@
 
 namespace App\Service;
 
+use App\Dto\Request\TrailerCreateRequest;
+use App\Dto\Request\TrailerUpdateRequest;
 use App\Entity\Trailer;
 use App\Repository\TrailerRepository;
 
-class TrailerService
+readonly class TrailerService
 {
     public function __construct(
         private TrailerRepository $trailerRepository
     ) {
     }
 
-    public function findAll(?string $status = null, ?string $type = null): array
+    public function create(TrailerCreateRequest $dto): Trailer
     {
-        if ($status) {
-            return $this->trailerRepository->findByStatus($status);
-        }
-        if ($type) {
-            return $this->trailerRepository->findByType($type);
-        }
-        return $this->trailerRepository->findAll();
-    }
-
-    public function findById(string $id): ?Trailer
-    {
-        return $this->trailerRepository->find($id);
-    }
-
-    public function create(array $data): Trailer
-    {
-        $trailer = new Trailer();
-        $trailer->setRegistrationNumber($data['registrationNumber'])
-            ->setType($data['type'])
-            ->setCapacity($data['capacity'])
-            ->setStatus($data['status']);
+        $trailer = (new Trailer())
+            ->setRegistrationNumber($dto->registrationNumber)
+            ->setType($dto->type)
+            ->setCapacity($dto->capacity)
+            ->setStatus($dto->status);
 
         $this->trailerRepository->save($trailer, true);
 
         return $trailer;
     }
 
-    public function update(Trailer $trailer, array $data): Trailer
+    public function update(Trailer $trailer, TrailerUpdateRequest $dto): Trailer
     {
-        if (isset($data['registrationNumber'])) {
-            $trailer->setRegistrationNumber($data['registrationNumber']);
-        }
-        if (isset($data['type'])) {
-            $trailer->setType($data['type']);
-        }
-        if (isset($data['capacity'])) {
-            $trailer->setCapacity($data['capacity']);
-        }
-        if (isset($data['status'])) {
-            $trailer->setStatus($data['status']);
-        }
+        $this->updateRegistrationNumber($trailer, $dto->registrationNumber);
+        $this->updateType($trailer, $dto->type);
+        $this->updateCapacity($trailer, $dto->capacity);
+        $this->updateStatus($trailer, $dto->status);
 
         $this->trailerRepository->save($trailer, true);
 
         return $trailer;
+    }
+
+    private function updateRegistrationNumber(Trailer $trailer, ?string $registrationNumber): void
+    {
+        if ($registrationNumber !== null) {
+            $trailer->setRegistrationNumber($registrationNumber);
+        }
+    }
+
+    private function updateType(Trailer $trailer, ?string $type): void
+    {
+        if ($type !== null) {
+            $trailer->setType($type);
+        }
+    }
+
+    private function updateCapacity(Trailer $trailer, ?string $capacity): void
+    {
+        if ($capacity !== null) {
+            $trailer->setCapacity($capacity);
+        }
+    }
+
+    private function updateStatus(Trailer $trailer, ?string $status): void
+    {
+        if ($status !== null) {
+            $trailer->setStatus($status);
+        }
     }
 
     public function delete(Trailer $trailer): void

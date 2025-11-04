@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Entity\Trailer;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
  * @extends ServiceEntityRepository<Trailer>
@@ -35,32 +36,16 @@ class TrailerRepository extends ServiceEntityRepository
     }
 
     /**
-     * Find trailers by status
-     *
-     * @return Trailer[]
+     * @throws NotFoundHttpException
      */
-    public function findByStatus(string $status): array
+    public function findOrFail(string $id): Trailer
     {
-        return $this->createQueryBuilder('t')
-            ->andWhere('t.status = :status')
-            ->setParameter('status', $status)
-            ->orderBy('t.registrationNumber', 'ASC')
-            ->getQuery()
-            ->getResult();
-    }
+        $trailer = $this->find($id);
 
-    /**
-     * Find trailers by type
-     *
-     * @return Trailer[]
-     */
-    public function findByType(string $type): array
-    {
-        return $this->createQueryBuilder('t')
-            ->andWhere('t.type = :type')
-            ->setParameter('type', $type)
-            ->orderBy('t.registrationNumber', 'ASC')
-            ->getQuery()
-            ->getResult();
+        if (!$trailer) {
+            throw new NotFoundHttpException('Trailer not found');
+        }
+
+        return $trailer;
     }
 }
