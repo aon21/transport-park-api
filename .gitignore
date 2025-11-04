@@ -10,3 +10,4 @@
 /memory_docs
 .idea/
 ###< symfony/framework-bundle ###
+coverage/

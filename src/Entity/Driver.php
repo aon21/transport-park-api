@@ -19,17 +19,17 @@ class Driver
     private ?Uuid $id;
 
     #[ORM\Column(length: 100)]
-    private ?string $firstName;
+    private ?string $firstName = null;
 
     #[ORM\Column(length: 100)]
-    private ?string $lastName;
+    private ?string $lastName = null;
 
     #[ORM\Column(length: 50, unique: true)]
-    private ?string $licenseNumber;
+    private ?string $licenseNumber = null;
 
     #[ORM\ManyToOne(targetEntity: FleetSet::class, inversedBy: 'drivers')]
     #[ORM\JoinColumn(name: 'fleet_set_id', referencedColumnName: 'id', nullable: true)]
-    private ?FleetSet $fleetSet;
+    private ?FleetSet $fleetSet = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private DateTimeInterface $createdAt;
