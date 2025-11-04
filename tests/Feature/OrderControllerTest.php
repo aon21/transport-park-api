@@ -2,6 +2,7 @@
 
 namespace App\Tests\Feature;
 
+use App\Entity\Order;
 use App\Tests\ApiTestCase;
 use App\Tests\Fixtures\OrderFixtures;
 
@@ -147,7 +148,7 @@ class OrderControllerTest extends ApiTestCase
     public function testUpdateModifiesOrderWithValidData(): void
     {
         $references = $this->loadFixtures([OrderFixtures::class]);
-        $order = $references->getReference(OrderFixtures::ORDER_1_PENDING, \App\Entity\Order::class);
+        $order = $references->getReference(OrderFixtures::ORDER_1_PENDING, Order::class);
 
         $this->requestJson('PUT', '/api/orders/' . $order->getId()->toRfc4122(), [
             'status' => 'in_progress',
