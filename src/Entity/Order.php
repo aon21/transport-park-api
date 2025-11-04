@@ -19,34 +19,34 @@ class Order
     private ?Uuid $id;
 
     #[ORM\Column(length: 50, unique: true)]
-    private ?string $orderNumber;
+    private ?string $orderNumber = null;
 
     #[ORM\ManyToOne(targetEntity: Truck::class)]
     #[ORM\JoinColumn(name: 'truck_id', referencedColumnName: 'id', nullable: true)]
-    private ?Truck $truck;
+    private ?Truck $truck = null;
 
     #[ORM\ManyToOne(targetEntity: Trailer::class)]
     #[ORM\JoinColumn(name: 'trailer_id', referencedColumnName: 'id', nullable: true)]
-    private ?Trailer $trailer;
+    private ?Trailer $trailer = null;
 
     #[ORM\ManyToOne(targetEntity: FleetSet::class)]
     #[ORM\JoinColumn(name: 'fleet_set_id', referencedColumnName: 'id', nullable: true)]
-    private ?FleetSet $fleetSet;
+    private ?FleetSet $fleetSet = null;
 
     #[ORM\Column(length: 100)]
-    private ?string $serviceType;
+    private ?string $serviceType = null;
 
     #[ORM\Column(type: Types::TEXT)]
-    private ?string $description;
+    private ?string $description = null;
 
     #[ORM\Column(length: 20)]
-    private ?string $status;
+    private ?string $status = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
-    private ?DateTimeInterface $startDate;
+    private ?DateTimeInterface $startDate = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
-    private ?DateTimeInterface $endDate;
+    private ?DateTimeInterface $endDate = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private DateTimeInterface $createdAt;

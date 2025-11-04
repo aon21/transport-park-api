@@ -14,13 +14,13 @@ class OrderCreateRequest
     public string $orderNumber;
 
     #[Assert\Uuid(message: 'Truck ID must be a valid UUID')]
-    public ?string $truckId;
+    public ?string $truckId = null;
 
     #[Assert\Uuid(message: 'Trailer ID must be a valid UUID')]
-    public ?string $trailerId;
+    public ?string $trailerId = null;
 
     #[Assert\Uuid(message: 'Fleet set ID must be a valid UUID')]
-    public ?string $fleetSetId;
+    public ?string $fleetSetId = null;
 
     #[Assert\NotBlank(message: 'Service type is required')]
     #[Assert\Length(
@@ -44,15 +44,6 @@ class OrderCreateRequest
     public string $startDate;
 
     #[Assert\DateTime(message: 'End date must be a valid date-time format')]
-    public ?string $endDate;
-
-    #[Assert\Expression(
-        "this.truckId !== null || this.trailerId !== null || this.fleetSetId !== null",
-        message: 'At least one of truck, trailer, or fleet set must be specified'
-    )]
-    public function isValid(): bool
-    {
-        return true;
-    }
+    public ?string $endDate = null;
 }
 

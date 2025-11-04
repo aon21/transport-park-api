@@ -21,12 +21,18 @@
         "symfony/yaml": "7.3.*"
     },
     "require-dev": {
+        "dama/doctrine-test-bundle": "^8.4",
         "doctrine/dbal": "^3",
         "doctrine/doctrine-bundle": "^2.18",
         "doctrine/doctrine-fixtures-bundle": "^4.3",
         "doctrine/doctrine-migrations-bundle": "^3.5",
         "doctrine/orm": "^3.5",
+        "liip/test-fixtures-bundle": "^3.6",
+        "phpunit/phpunit": "^11.5",
+        "symfony/browser-kit": "7.3.*",
+        "symfony/css-selector": "7.3.*",
         "symfony/maker-bundle": "^1.64",
+        "symfony/phpunit-bridge": "^7.3",
         "symfony/uid": "7.3.*"
     },
     "config": {
@@ -68,7 +74,9 @@
         ],
         "post-update-cmd": [
             "@auto-scripts"
-        ]
+        ],
+        "test": "php bin/phpunit tests/Feature/ --testdox --colors=always",
+        "test:coverage": "php bin/phpunit tests/Feature/ --coverage-html coverage"
     },
     "conflict": {
         "symfony/symfony": "*"
