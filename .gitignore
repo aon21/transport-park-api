@@ -9,3 +9,5 @@
 .idea/
 
 .phpunit.cache
+/coverage
+/docs
