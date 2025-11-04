@@ -2,6 +2,8 @@
 
 namespace App\Controller;
 
+use App\Dto\OrderCreateDto;
+use App\Dto\OrderUpdateDto;
 use App\Dto\Request\OrderCreateRequest;
 use App\Dto\Request\OrderUpdateRequest;
 use App\Dto\Response\OrderResource;
@@ -44,7 +46,19 @@ class OrderController extends AbstractController
     #[Route('', methods: ['POST'])]
     public function create(#[MapRequestPayload] OrderCreateRequest $request): JsonResponse
     {
-        $order = $this->orderService->create($request);
+        $dto = new OrderCreateDto(
+            orderNumber: $request->orderNumber,
+            truckId: $request->truckId,
+            trailerId: $request->trailerId,
+            fleetSetId: $request->fleetSetId,
+            serviceType: $request->serviceType,
+            description: $request->description,
+            status: $request->status,
+            startDate: $request->startDate,
+            endDate: $request->endDate
+        );
+
+        $order = $this->orderService->create($dto);
 
         return $this->json(OrderResource::fromEntity($order), Response::HTTP_CREATED);
     }
@@ -52,7 +66,19 @@ class OrderController extends AbstractController
     #[Route('/{id}', methods: ['PUT', 'PATCH'])]
     public function update(Order $order, #[MapRequestPayload] OrderUpdateRequest $request): JsonResponse
     {
-        $order = $this->orderService->update($order, $request);
+        $dto = new OrderUpdateDto(
+            orderNumber: $request->orderNumber,
+            truckId: $request->truckId,
+            trailerId: $request->trailerId,
+            fleetSetId: $request->fleetSetId,
+            serviceType: $request->serviceType,
+            description: $request->description,
+            status: $request->status,
+            startDate: $request->startDate,
+            endDate: $request->endDate
+        );
+
+        $order = $this->orderService->update($order, $dto);
 
         return $this->json(OrderResource::fromEntity($order));
     }

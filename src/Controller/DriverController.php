@@ -2,6 +2,8 @@
 
 namespace App\Controller;
 
+use App\Dto\DriverCreateDto;
+use App\Dto\DriverUpdateDto;
 use App\Dto\Request\DriverCreateRequest;
 use App\Dto\Request\DriverUpdateRequest;
 use App\Dto\Response\DriverResource;
@@ -27,7 +29,7 @@ class DriverController extends AbstractController
     public function index(): JsonResponse
     {
         $drivers = $this->driverRepository->findAll();
-        
+
         return $this->json(DriverResource::collection($drivers));
     }
 
@@ -40,7 +42,14 @@ class DriverController extends AbstractController
     #[Route('', methods: ['POST'])]
     public function create(#[MapRequestPayload] DriverCreateRequest $request): JsonResponse
     {
-        $driver = $this->driverService->create($request);
+        $dto = new DriverCreateDto(
+            firstName: $request->firstName,
+            lastName: $request->lastName,
+            licenseNumber: $request->licenseNumber,
+            fleetSetId: $request->fleetSetId
+        );
+
+        $driver = $this->driverService->create($dto);
 
         return $this->json(DriverResource::fromEntity($driver), Response::HTTP_CREATED);
     }
@@ -48,7 +57,14 @@ class DriverController extends AbstractController
     #[Route('/{id}', methods: ['PUT', 'PATCH'])]
     public function update(Driver $driver, #[MapRequestPayload] DriverUpdateRequest $request): JsonResponse
     {
-        $driver = $this->driverService->update($driver, $request);
+        $dto = new DriverUpdateDto(
+            firstName: $request->firstName,
+            lastName: $request->lastName,
+            licenseNumber: $request->licenseNumber,
+            fleetSetId: $request->fleetSetId
+        );
+
+        $driver = $this->driverService->update($driver, $dto);
 
         return $this->json(DriverResource::fromEntity($driver));
     }

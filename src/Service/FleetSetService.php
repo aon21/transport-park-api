@@ -2,8 +2,8 @@
 
 namespace App\Service;
 
-use App\Dto\Request\FleetSetCreateRequest;
-use App\Dto\Request\FleetSetUpdateRequest;
+use App\Dto\FleetSetCreateDto;
+use App\Dto\FleetSetUpdateDto;
 use App\Entity\FleetSet;
 use App\Repository\TruckRepository;
 use App\Repository\TrailerRepository;
@@ -17,7 +17,7 @@ readonly class FleetSetService
         private FleetSetRepository $fleetSetRepository,
     ) {}
 
-    public function create(FleetSetCreateRequest $dto): FleetSet
+    public function create(FleetSetCreateDto $dto): FleetSet
     {
         $truck = $this->truckRepository->findOrFail($dto->truckId);
         $trailer = $this->trailerRepository->findOrFail($dto->trailerId);
@@ -32,7 +32,7 @@ readonly class FleetSetService
         return $fleetSet;
     }
 
-    public function update(FleetSet $fleetSet, FleetSetUpdateRequest $dto): FleetSet
+    public function update(FleetSet $fleetSet, FleetSetUpdateDto $dto): FleetSet
     {
         $this->updateName($fleetSet, $dto->name);
         $this->updateTruck($fleetSet, $dto->truckId);

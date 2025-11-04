@@ -5,6 +5,8 @@ namespace App\Controller;
 use App\Dto\Request\TruckCreateRequest;
 use App\Dto\Request\TruckUpdateRequest;
 use App\Dto\Response\TruckResource;
+use App\Dto\TruckCreateDto;
+use App\Dto\TruckUpdateDto;
 use App\Entity\Truck;
 use App\Repository\TruckRepository;
 use App\Service\TruckService;
@@ -40,7 +42,14 @@ class TruckController extends AbstractController
     #[Route('', methods: ['POST'])]
     public function create(#[MapRequestPayload] TruckCreateRequest $request): JsonResponse
     {
-        $truck = $this->truckService->create($request);
+        $dto = new TruckCreateDto(
+            registrationNumber: $request->registrationNumber,
+            brand: $request->brand,
+            model: $request->model,
+            status: $request->status
+        );
+
+        $truck = $this->truckService->create($dto);
 
         return $this->json(TruckResource::fromEntity($truck), Response::HTTP_CREATED);
     }
@@ -48,7 +57,14 @@ class TruckController extends AbstractController
     #[Route('/{id}', methods: ['PUT', 'PATCH'])]
     public function update(Truck $uuid, #[MapRequestPayload] TruckUpdateRequest $request): JsonResponse
     {
-        $truck = $this->truckService->update($uuid, $request);
+        $dto = new TruckUpdateDto(
+            registrationNumber: $request->registrationNumber,
+            brand: $request->brand,
+            model: $request->model,
+            status: $request->status
+        );
+
+        $truck = $this->truckService->update($uuid, $dto);
 
         return $this->json(TruckResource::fromEntity($truck));
     }

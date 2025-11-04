@@ -2,8 +2,8 @@
 
 namespace App\Service;
 
-use App\Dto\Request\DriverCreateRequest;
-use App\Dto\Request\DriverUpdateRequest;
+use App\Dto\DriverCreateDto;
+use App\Dto\DriverUpdateDto;
 use App\Entity\Driver;
 use App\Repository\DriverRepository;
 use App\Repository\FleetSetRepository;
@@ -16,7 +16,7 @@ readonly class DriverService
     ) {
     }
 
-    public function create(DriverCreateRequest $dto): Driver
+    public function create(DriverCreateDto $dto): Driver
     {
         $driver = (new Driver())
             ->setFirstName($dto->firstName)
@@ -33,7 +33,7 @@ readonly class DriverService
         return $driver;
     }
 
-    public function update(Driver $driver, DriverUpdateRequest $dto): Driver
+    public function update(Driver $driver, DriverUpdateDto $dto): Driver
     {
         $this->updateFirstName($driver, $dto->firstName);
         $this->updateLastName($driver, $dto->lastName);

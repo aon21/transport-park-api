@@ -2,6 +2,8 @@
 
 namespace App\Controller;
 
+use App\Dto\FleetSetCreateDto;
+use App\Dto\FleetSetUpdateDto;
 use App\Dto\Request\FleetSetCreateRequest;
 use App\Dto\Request\FleetSetUpdateRequest;
 use App\Dto\Response\FleetSetResource;
@@ -49,7 +51,13 @@ class FleetSetController extends AbstractController
     #[Route('', methods: ['POST'])]
     public function create(#[MapRequestPayload] FleetSetCreateRequest $request): JsonResponse
     {
-        $fleetSet = $this->fleetSetService->create($request);
+        $dto = new FleetSetCreateDto(
+            name: $request->name,
+            truckId: $request->truckId,
+            trailerId: $request->trailerId
+        );
+
+        $fleetSet = $this->fleetSetService->create($dto);
 
         return $this->json(
             FleetSetResource::fromEntity($fleetSet),
@@ -60,7 +68,13 @@ class FleetSetController extends AbstractController
     #[Route('/{id}', methods: ['PUT', 'PATCH'])]
     public function update(FleetSet $fleetSet, #[MapRequestPayload] FleetSetUpdateRequest $request): JsonResponse
     {
-        $updatedFleetSet = $this->fleetSetService->update($fleetSet, $request);
+        $dto = new FleetSetUpdateDto(
+            name: $request->name,
+            truckId: $request->truckId,
+            trailerId: $request->trailerId
+        );
+
+        $updatedFleetSet = $this->fleetSetService->update($fleetSet, $dto);
 
         return $this->json(FleetSetResource::fromEntity($updatedFleetSet));
     }

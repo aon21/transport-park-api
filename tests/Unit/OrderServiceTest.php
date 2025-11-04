@@ -2,8 +2,8 @@
 
 namespace App\Tests\Unit;
 
-use App\Dto\Request\OrderCreateRequest;
-use App\Dto\Request\OrderUpdateRequest;
+use App\Dto\OrderCreateDto;
+use App\Dto\OrderUpdateDto;
 use App\Entity\FleetSet;
 use App\Entity\Order;
 use App\Entity\Trailer;
@@ -49,12 +49,17 @@ class OrderServiceTest extends TestCase
      */
     public function testCreateWithMinimalData(): void
     {
-        $dto = new OrderCreateRequest();
-        $dto->orderNumber = 'ORD-001';
-        $dto->serviceType = 'Maintenance';
-        $dto->description = 'Regular maintenance';
-        $dto->status = 'pending';
-        $dto->startDate = '2025-12-01 10:00:00';
+        $dto = new OrderCreateDto(
+            orderNumber: 'ORD-001',
+            truckId: null,
+            trailerId: null,
+            fleetSetId: null,
+            serviceType: 'Maintenance',
+            description: 'Regular maintenance',
+            status: 'pending',
+            startDate: '2025-12-01 10:00:00',
+            endDate: null
+        );
 
         $this->orderRepository->expects($this->once())
             ->method('save')
@@ -79,13 +84,17 @@ class OrderServiceTest extends TestCase
      */
     public function testCreateWithTruck(): void
     {
-        $dto = new OrderCreateRequest();
-        $dto->orderNumber = 'ORD-002';
-        $dto->serviceType = 'Repair';
-        $dto->description = 'Engine repair';
-        $dto->status = 'in_progress';
-        $dto->startDate = '2025-12-01 10:00:00';
-        $dto->truckId = 'truck-uuid';
+        $dto = new OrderCreateDto(
+            orderNumber: 'ORD-002',
+            truckId: 'truck-uuid',
+            trailerId: null,
+            fleetSetId: null,
+            serviceType: 'Repair',
+            description: 'Engine repair',
+            status: 'in_progress',
+            startDate: '2025-12-01 10:00:00',
+            endDate: null
+        );
 
         $truck = $this->createMock(Truck::class);
 
@@ -112,13 +121,17 @@ class OrderServiceTest extends TestCase
      */
     public function testCreateWithTrailer(): void
     {
-        $dto = new OrderCreateRequest();
-        $dto->orderNumber = 'ORD-003';
-        $dto->serviceType = 'Inspection';
-        $dto->description = 'Annual inspection';
-        $dto->status = 'pending';
-        $dto->startDate = '2025-12-01 10:00:00';
-        $dto->trailerId = 'trailer-uuid';
+        $dto = new OrderCreateDto(
+            orderNumber: 'ORD-003',
+            truckId: null,
+            trailerId: 'trailer-uuid',
+            fleetSetId: null,
+            serviceType: 'Inspection',
+            description: 'Annual inspection',
+            status: 'pending',
+            startDate: '2025-12-01 10:00:00',
+            endDate: null
+        );
 
         $trailer = $this->createMock(Trailer::class);
 
@@ -143,13 +156,17 @@ class OrderServiceTest extends TestCase
      */
     public function testCreateWithFleetSet(): void
     {
-        $dto = new OrderCreateRequest();
-        $dto->orderNumber = 'ORD-004';
-        $dto->serviceType = 'Full Service';
-        $dto->description = 'Complete fleet service';
-        $dto->status = 'pending';
-        $dto->startDate = '2025-12-01 10:00:00';
-        $dto->fleetSetId = 'fleetset-uuid';
+        $dto = new OrderCreateDto(
+            orderNumber: 'ORD-004',
+            truckId: null,
+            trailerId: null,
+            fleetSetId: 'fleetset-uuid',
+            serviceType: 'Full Service',
+            description: 'Complete fleet service',
+            status: 'pending',
+            startDate: '2025-12-01 10:00:00',
+            endDate: null
+        );
 
         $fleetSet = $this->createMock(FleetSet::class);
 
@@ -173,15 +190,17 @@ class OrderServiceTest extends TestCase
      */
     public function testCreateWithAllRelationships(): void
     {
-        $dto = new OrderCreateRequest();
-        $dto->orderNumber = 'ORD-005';
-        $dto->serviceType = 'Complex Service';
-        $dto->description = 'All entities involved';
-        $dto->status = 'pending';
-        $dto->startDate = '2025-12-01 10:00:00';
-        $dto->truckId = 'truck-uuid';
-        $dto->trailerId = 'trailer-uuid';
-        $dto->fleetSetId = 'fleetset-uuid';
+        $dto = new OrderCreateDto(
+            orderNumber: 'ORD-005',
+            truckId: 'truck-uuid',
+            trailerId: 'trailer-uuid',
+            fleetSetId: 'fleetset-uuid',
+            serviceType: 'Complex Service',
+            description: 'All entities involved',
+            status: 'pending',
+            startDate: '2025-12-01 10:00:00',
+            endDate: null
+        );
 
         $truck = $this->createMock(Truck::class);
         $trailer = $this->createMock(Trailer::class);
@@ -217,13 +236,17 @@ class OrderServiceTest extends TestCase
      */
     public function testCreateWithEndDate(): void
     {
-        $dto = new OrderCreateRequest();
-        $dto->orderNumber = 'ORD-006';
-        $dto->serviceType = 'Completed Service';
-        $dto->description = 'Service with end date';
-        $dto->status = 'completed';
-        $dto->startDate = '2025-12-01 10:00:00';
-        $dto->endDate = '2025-12-05 16:00:00';
+        $dto = new OrderCreateDto(
+            orderNumber: 'ORD-006',
+            truckId: null,
+            trailerId: null,
+            fleetSetId: null,
+            serviceType: 'Completed Service',
+            description: 'Service with end date',
+            status: 'completed',
+            startDate: '2025-12-01 10:00:00',
+            endDate: '2025-12-05 16:00:00'
+        );
 
         $this->orderRepository->expects($this->once())
             ->method('save');
@@ -244,8 +267,17 @@ class OrderServiceTest extends TestCase
         $order = new Order();
         $order->setOrderNumber('ORD-OLD');
 
-        $dto = new OrderUpdateRequest();
-        $dto->orderNumber = 'ORD-NEW';
+        $dto = new OrderUpdateDto(
+            orderNumber: 'ORD-NEW',
+            truckId: null,
+            trailerId: null,
+            fleetSetId: null,
+            serviceType: null,
+            description: null,
+            status: null,
+            startDate: null,
+            endDate: null
+        );
 
         $this->orderRepository->expects($this->once())
             ->method('save')
@@ -264,8 +296,17 @@ class OrderServiceTest extends TestCase
         $order = new Order();
         $order->setServiceType('Old Service');
 
-        $dto = new OrderUpdateRequest();
-        $dto->serviceType = 'New Service';
+        $dto = new OrderUpdateDto(
+            orderNumber: null,
+            truckId: null,
+            trailerId: null,
+            fleetSetId: null,
+            serviceType: 'New Service',
+            description: null,
+            status: null,
+            startDate: null,
+            endDate: null
+        );
 
         $this->orderRepository->expects($this->once())
             ->method('save');
@@ -283,8 +324,17 @@ class OrderServiceTest extends TestCase
         $order = new Order();
         $order->setDescription('Old description');
 
-        $dto = new OrderUpdateRequest();
-        $dto->description = 'New description';
+        $dto = new OrderUpdateDto(
+            orderNumber: null,
+            truckId: null,
+            trailerId: null,
+            fleetSetId: null,
+            serviceType: null,
+            description: 'New description',
+            status: null,
+            startDate: null,
+            endDate: null
+        );
 
         $this->orderRepository->expects($this->once())
             ->method('save');
@@ -302,8 +352,17 @@ class OrderServiceTest extends TestCase
         $order = new Order();
         $order->setStatus('pending');
 
-        $dto = new OrderUpdateRequest();
-        $dto->status = 'in_progress';
+        $dto = new OrderUpdateDto(
+            orderNumber: null,
+            truckId: null,
+            trailerId: null,
+            fleetSetId: null,
+            serviceType: null,
+            description: null,
+            status: 'in_progress',
+            startDate: null,
+            endDate: null
+        );
 
         $this->orderRepository->expects($this->once())
             ->method('save');
@@ -321,8 +380,17 @@ class OrderServiceTest extends TestCase
         $order = new Order();
         $order->setStartDate(new DateTime('2025-01-01'));
 
-        $dto = new OrderUpdateRequest();
-        $dto->startDate = '2025-12-01 10:00:00';
+        $dto = new OrderUpdateDto(
+            orderNumber: null,
+            truckId: null,
+            trailerId: null,
+            fleetSetId: null,
+            serviceType: null,
+            description: null,
+            status: null,
+            startDate: '2025-12-01 10:00:00',
+            endDate: null
+        );
 
         $this->orderRepository->expects($this->once())
             ->method('save');
@@ -339,8 +407,17 @@ class OrderServiceTest extends TestCase
     {
         $order = new Order();
 
-        $dto = new OrderUpdateRequest();
-        $dto->endDate = '2025-12-10 18:00:00';
+        $dto = new OrderUpdateDto(
+            orderNumber: null,
+            truckId: null,
+            trailerId: null,
+            fleetSetId: null,
+            serviceType: null,
+            description: null,
+            status: null,
+            startDate: null,
+            endDate: '2025-12-10 18:00:00'
+        );
 
         $this->orderRepository->expects($this->once())
             ->method('save');
@@ -359,8 +436,17 @@ class OrderServiceTest extends TestCase
     {
         $order = new Order();
 
-        $dto = new OrderUpdateRequest();
-        $dto->truckId = 'new-truck-uuid';
+        $dto = new OrderUpdateDto(
+            orderNumber: null,
+            truckId: 'new-truck-uuid',
+            trailerId: null,
+            fleetSetId: null,
+            serviceType: null,
+            description: null,
+            status: null,
+            startDate: null,
+            endDate: null
+        );
 
         $truck = $this->createMock(Truck::class);
 
@@ -385,8 +471,17 @@ class OrderServiceTest extends TestCase
     {
         $order = new Order();
 
-        $dto = new OrderUpdateRequest();
-        $dto->trailerId = 'new-trailer-uuid';
+        $dto = new OrderUpdateDto(
+            orderNumber: null,
+            truckId: null,
+            trailerId: 'new-trailer-uuid',
+            fleetSetId: null,
+            serviceType: null,
+            description: null,
+            status: null,
+            startDate: null,
+            endDate: null
+        );
 
         $trailer = $this->createMock(Trailer::class);
 
@@ -411,8 +506,17 @@ class OrderServiceTest extends TestCase
     {
         $order = new Order();
 
-        $dto = new OrderUpdateRequest();
-        $dto->fleetSetId = 'new-fleetset-uuid';
+        $dto = new OrderUpdateDto(
+            orderNumber: null,
+            truckId: null,
+            trailerId: null,
+            fleetSetId: 'new-fleetset-uuid',
+            serviceType: null,
+            description: null,
+            status: null,
+            startDate: null,
+            endDate: null
+        );
 
         $fleetSet = $this->createMock(FleetSet::class);
 
@@ -440,7 +544,17 @@ class OrderServiceTest extends TestCase
         $order->setDescription('Description');
         $order->setStatus('pending');
 
-        $dto = new OrderUpdateRequest();
+        $dto = new OrderUpdateDto(
+            orderNumber: null,
+            truckId: null,
+            trailerId: null,
+            fleetSetId: null,
+            serviceType: null,
+            description: null,
+            status: null,
+            startDate: null,
+            endDate: null
+        );
 
         $this->orderRepository->expects($this->once())
             ->method('save');
@@ -463,10 +577,17 @@ class OrderServiceTest extends TestCase
         $order->setStatus('pending');
         $order->setDescription('Old description');
 
-        $dto = new OrderUpdateRequest();
-        $dto->orderNumber = 'ORD-NEW';
-        $dto->status = 'completed';
-        $dto->description = 'New description';
+        $dto = new OrderUpdateDto(
+            orderNumber: 'ORD-NEW',
+            truckId: null,
+            trailerId: null,
+            fleetSetId: null,
+            serviceType: null,
+            description: 'New description',
+            status: 'completed',
+            startDate: null,
+            endDate: null
+        );
 
         $this->orderRepository->expects($this->once())
             ->method('save');
