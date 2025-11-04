@@ -29,42 +29,15 @@ readonly class TrailerService
 
     public function update(Trailer $trailer, TrailerUpdateDto $dto): Trailer
     {
-        $this->updateRegistrationNumber($trailer, $dto->registrationNumber);
-        $this->updateType($trailer, $dto->type);
-        $this->updateCapacity($trailer, $dto->capacity);
-        $this->updateStatus($trailer, $dto->status);
+        $trailer
+            ->setRegistrationNumber($dto->registrationNumber)
+            ->setType($dto->type)
+            ->setCapacity($dto->capacity)
+            ->setStatus($dto->status);
 
         $this->trailerRepository->save($trailer, true);
 
         return $trailer;
-    }
-
-    private function updateRegistrationNumber(Trailer $trailer, ?string $registrationNumber): void
-    {
-        if ($registrationNumber !== null) {
-            $trailer->setRegistrationNumber($registrationNumber);
-        }
-    }
-
-    private function updateType(Trailer $trailer, ?string $type): void
-    {
-        if ($type !== null) {
-            $trailer->setType($type);
-        }
-    }
-
-    private function updateCapacity(Trailer $trailer, ?string $capacity): void
-    {
-        if ($capacity !== null) {
-            $trailer->setCapacity($capacity);
-        }
-    }
-
-    private function updateStatus(Trailer $trailer, ?string $status): void
-    {
-        if ($status !== null) {
-            $trailer->setStatus($status);
-        }
     }
 
     public function delete(Trailer $trailer): void

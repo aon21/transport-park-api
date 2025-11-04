@@ -19,16 +19,16 @@ class Truck
     private ?Uuid $id;
 
     #[ORM\Column(length: 50, unique: true)]
-    private ?string $registrationNumber;
+    private string $registrationNumber;
 
     #[ORM\Column(length: 100)]
-    private ?string $brand;
+    private string $brand;
 
     #[ORM\Column(length: 100)]
-    private ?string $model;
+    private string $model;
 
     #[ORM\Column(length: 20)]
-    private ?string $status = 'operational';
+    private string $status = 'operational';
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private DateTimeInterface $createdAt;
@@ -59,7 +59,7 @@ class Truck
         return $this->id;
     }
 
-    public function getRegistrationNumber(): ?string
+    public function getRegistrationNumber(): string
     {
         return $this->registrationNumber;
     }
@@ -70,7 +70,7 @@ class Truck
         return $this;
     }
 
-    public function getBrand(): ?string
+    public function getBrand(): string
     {
         return $this->brand;
     }
@@ -81,7 +81,7 @@ class Truck
         return $this;
     }
 
-    public function getModel(): ?string
+    public function getModel(): string
     {
         return $this->model;
     }
@@ -92,7 +92,7 @@ class Truck
         return $this;
     }
 
-    public function getStatus(): ?string
+    public function getStatus(): string
     {
         return $this->status;
     }

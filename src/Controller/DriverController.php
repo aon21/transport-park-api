@@ -54,7 +54,7 @@ class DriverController extends AbstractController
         return $this->json(DriverResource::fromEntity($driver), Response::HTTP_CREATED);
     }
 
-    #[Route('/{id}', methods: ['PUT', 'PATCH'])]
+    #[Route('/{id}', methods: ['PUT'])]
     public function update(Driver $driver, #[MapRequestPayload] DriverUpdateRequest $request): JsonResponse
     {
         $dto = new DriverUpdateDto(

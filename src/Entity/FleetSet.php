@@ -21,15 +21,15 @@ class FleetSet
     private ?Uuid $id;
 
     #[ORM\Column(length: 100)]
-    private ?string $name;
+    private string $name;
 
     #[ORM\ManyToOne(targetEntity: Truck::class)]
     #[ORM\JoinColumn(name: 'truck_id', referencedColumnName: 'id', nullable: false)]
-    private ?Truck $truck;
+    private Truck $truck;
 
     #[ORM\ManyToOne(targetEntity: Trailer::class)]
     #[ORM\JoinColumn(name: 'trailer_id', referencedColumnName: 'id', nullable: false)]
-    private ?Trailer $trailer;
+    private Trailer $trailer;
 
     /**
      * @var Collection<int, Driver>
@@ -67,7 +67,7 @@ class FleetSet
         return $this->id;
     }
 
-    public function getName(): ?string
+    public function getName(): string
     {
         return $this->name;
     }
@@ -79,24 +79,24 @@ class FleetSet
         return $this;
     }
 
-    public function getTruck(): ?Truck
+    public function getTruck(): Truck
     {
         return $this->truck;
     }
 
-    public function setTruck(?Truck $truck): static
+    public function setTruck(Truck $truck): static
     {
         $this->truck = $truck;
 
         return $this;
     }
 
-    public function getTrailer(): ?Trailer
+    public function getTrailer(): Trailer
     {
         return $this->trailer;
     }
 
-    public function setTrailer(?Trailer $trailer): static
+    public function setTrailer(Trailer $trailer): static
     {
         $this->trailer = $trailer;
 

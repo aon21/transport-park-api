@@ -63,7 +63,7 @@ class OrderController extends AbstractController
         return $this->json(OrderResource::fromEntity($order), Response::HTTP_CREATED);
     }
 
-    #[Route('/{id}', methods: ['PUT', 'PATCH'])]
+    #[Route('/{id}', methods: ['PUT'])]
     public function update(Order $order, #[MapRequestPayload] OrderUpdateRequest $request): JsonResponse
     {
         $dto = new OrderUpdateDto(

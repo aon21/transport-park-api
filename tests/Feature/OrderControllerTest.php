@@ -151,14 +151,22 @@ class OrderControllerTest extends ApiTestCase
         $order = $references->getReference(OrderFixtures::ORDER_1_PENDING, Order::class);
 
         $this->requestJson('PUT', '/api/orders/' . $order->getId()->toRfc4122(), [
+            'orderNumber' => $order->getOrderNumber(),
+            'truckId' => $order->getTruck() ? $order->getTruck()->getId()->toRfc4122() : null,
+            'trailerId' => $order->getTrailer() ? $order->getTrailer()->getId()->toRfc4122() : null,
+            'fleetSetId' => $order->getFleetSet() ? $order->getFleetSet()->getId()->toRfc4122() : null,
+            'serviceType' => 'Updated Service Type',
+            'description' => 'Updated description',
             'status' => 'in_progress',
-            'description' => 'Updated description'
+            'startDate' => $order->getStartDate()->format('Y-m-d H:i:s'),
+            'endDate' => null
         ]);
 
         $this->assertResponseStatusCodeSame(200);
         $json = $this->getJsonResponse();
         $this->assertEquals('in_progress', $json['status']);
         $this->assertEquals('Updated description', $json['description']);
+        $this->assertEquals('Updated Service Type', $json['serviceType']);
     }
 
     public function testDeleteRemovesOrder(): void

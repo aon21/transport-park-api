@@ -19,16 +19,16 @@ class Trailer
     private ?Uuid $id;
 
     #[ORM\Column(length: 50, unique: true)]
-    private ?string $registrationNumber;
+    private string $registrationNumber;
 
     #[ORM\Column(length: 100)]
-    private ?string $type;
+    private string $type;
 
     #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2)]
-    private ?string $capacity;
+    private string $capacity;
 
     #[ORM\Column(length: 20)]
-    private ?string $status = 'operational';
+    private string $status = 'operational';
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private DateTimeInterface $createdAt;
@@ -59,7 +59,7 @@ class Trailer
         return $this->id;
     }
 
-    public function getRegistrationNumber(): ?string
+    public function getRegistrationNumber(): string
     {
         return $this->registrationNumber;
     }
@@ -70,7 +70,7 @@ class Trailer
         return $this;
     }
 
-    public function getType(): ?string
+    public function getType(): string
     {
         return $this->type;
     }
@@ -81,7 +81,7 @@ class Trailer
         return $this;
     }
 
-    public function getCapacity(): ?string
+    public function getCapacity(): string
     {
         return $this->capacity;
     }
@@ -92,7 +92,7 @@ class Trailer
         return $this;
     }
 
-    public function getStatus(): ?string
+    public function getStatus(): string
     {
         return $this->status;
     }
