@@ -11,7 +11,6 @@ class OrderFixtures extends Fixture implements DependentFixtureInterface
 {
     public function load(ObjectManager $manager): void
     {
-        // Order 1: Pending - truck service
         $order1 = new Order();
         $order1->setOrderNumber('ORD-2024-001')
             ->setServiceType('Routine Maintenance')
@@ -22,7 +21,6 @@ class OrderFixtures extends Fixture implements DependentFixtureInterface
             ->setTruck($this->getReference(TruckFixtures::TRUCK_OPERATIONAL_1, \App\Entity\Truck::class));
         $manager->persist($order1);
 
-        // Order 2: In Progress - trailer service
         $order2 = new Order();
         $order2->setOrderNumber('ORD-2024-002')
             ->setServiceType('Brake System Repair')
@@ -33,7 +31,6 @@ class OrderFixtures extends Fixture implements DependentFixtureInterface
             ->setTrailer($this->getReference(TrailerFixtures::TRAILER_IN_SERVICE, \App\Entity\Trailer::class));
         $manager->persist($order2);
 
-        // Order 3: Completed - fleet set service
         $order3 = new Order();
         $order3->setOrderNumber('ORD-2024-003')
             ->setServiceType('Pre-Trip Inspection')
@@ -44,7 +41,6 @@ class OrderFixtures extends Fixture implements DependentFixtureInterface
             ->setFleetSet($this->getReference(FleetSetFixtures::FLEET_SET_WORKS, \App\Entity\FleetSet::class));
         $manager->persist($order3);
 
-        // Order 4: Cancelled - individual truck
         $order4 = new Order();
         $order4->setOrderNumber('ORD-2024-004')
             ->setServiceType('Tire Replacement')
@@ -55,7 +51,6 @@ class OrderFixtures extends Fixture implements DependentFixtureInterface
             ->setTruck($this->getReference(TruckFixtures::TRUCK_IN_SERVICE_1, \App\Entity\Truck::class));
         $manager->persist($order4);
 
-        // Order 5: Pending - entire fleet set
         $order5 = new Order();
         $order5->setOrderNumber('ORD-2024-005')
             ->setServiceType('Full Fleet Inspection')

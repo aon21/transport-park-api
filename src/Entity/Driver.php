@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\DriverRepository;
+use DateTime;
+use DateTimeInterface;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Uid\Uuid;
@@ -14,26 +16,26 @@ class Driver
 {
     #[ORM\Id]
     #[ORM\Column(type: 'uuid', unique: true)]
-    private ?Uuid $id = null;
+    private ?Uuid $id;
 
     #[ORM\Column(length: 100)]
-    private ?string $firstName = null;
+    private ?string $firstName;
 
     #[ORM\Column(length: 100)]
-    private ?string $lastName = null;
+    private ?string $lastName;
 
     #[ORM\Column(length: 50, unique: true)]
-    private ?string $licenseNumber = null;
+    private ?string $licenseNumber;
 
     #[ORM\ManyToOne(targetEntity: FleetSet::class, inversedBy: 'drivers')]
     #[ORM\JoinColumn(name: 'fleet_set_id', referencedColumnName: 'id', nullable: true)]
-    private ?FleetSet $fleetSet = null;
+    private ?FleetSet $fleetSet;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
-    private ?\DateTimeInterface $createdAt = null;
+    private DateTimeInterface $createdAt;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
-    private ?\DateTimeInterface $updatedAt = null;
+    private DateTimeInterface $updatedAt;
 
     public function __construct()
     {
@@ -43,14 +45,14 @@ class Driver
     #[ORM\PrePersist]
     public function onPrePersist(): void
     {
-        $this->createdAt = new \DateTime();
-        $this->updatedAt = new \DateTime();
+        $this->createdAt = new DateTime();
+        $this->updatedAt = new DateTime();
     }
 
     #[ORM\PreUpdate]
     public function onPreUpdate(): void
     {
-        $this->updatedAt = new \DateTime();
+        $this->updatedAt = new DateTime();
     }
 
     public function getId(): ?Uuid
@@ -102,26 +104,14 @@ class Driver
         return $this;
     }
 
-    public function getCreatedAt(): ?\DateTimeInterface
+    public function getCreatedAt(): DateTimeInterface
     {
         return $this->createdAt;
     }
 
-    public function setCreatedAt(\DateTimeInterface $createdAt): static
-    {
-        $this->createdAt = $createdAt;
-        return $this;
-    }
-
-    public function getUpdatedAt(): ?\DateTimeInterface
+    public function getUpdatedAt(): DateTimeInterface
     {
         return $this->updatedAt;
-    }
-
-    public function setUpdatedAt(\DateTimeInterface $updatedAt): static
-    {
-        $this->updatedAt = $updatedAt;
-        return $this;
     }
 
     public function getFullName(): string

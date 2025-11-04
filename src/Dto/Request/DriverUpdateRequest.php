@@ -10,21 +10,21 @@ class DriverUpdateRequest
         max: 100,
         maxMessage: 'First name cannot be longer than {{ limit }} characters'
     )]
-    public ?string $firstName = null;
+    public ?string $firstName;
 
     #[Assert\Length(
         max: 100,
         maxMessage: 'Last name cannot be longer than {{ limit }} characters'
     )]
-    public ?string $lastName = null;
+    public ?string $lastName;
 
     #[Assert\Length(
         max: 50,
         maxMessage: 'License number cannot be longer than {{ limit }} characters'
     )]
-    public ?string $licenseNumber = null;
+    public ?string $licenseNumber;
 
     #[Assert\Uuid(message: 'Fleet set ID must be a valid UUID')]
-    public ?string $fleetSetId = null;
+    public ?string $fleetSetId;
 }
 

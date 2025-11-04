@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\TruckRepository;
+use DateTime;
+use DateTimeInterface;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Uid\Uuid;
@@ -14,43 +16,42 @@ class Truck
 {
     #[ORM\Id]
     #[ORM\Column(type: 'uuid', unique: true)]
-    private ?Uuid $id = null;
+    private ?Uuid $id;
 
     #[ORM\Column(length: 50, unique: true)]
-    private ?string $registrationNumber = null;
+    private ?string $registrationNumber;
 
     #[ORM\Column(length: 100)]
-    private ?string $brand = null;
+    private ?string $brand;
 
     #[ORM\Column(length: 100)]
-    private ?string $model = null;
+    private ?string $model;
 
     #[ORM\Column(length: 20)]
     private ?string $status = 'operational';
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
-    private ?\DateTimeInterface $createdAt = null;
+    private DateTimeInterface $createdAt;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
-    private ?\DateTimeInterface $updatedAt = null;
+    private DateTimeInterface $updatedAt;
 
     public function __construct()
     {
         $this->id = Uuid::v4();
-        $this->status = 'operational';
     }
 
     #[ORM\PrePersist]
     public function onPrePersist(): void
     {
-        $this->createdAt = new \DateTime();
-        $this->updatedAt = new \DateTime();
+        $this->createdAt = new DateTime();
+        $this->updatedAt = new DateTime();
     }
 
     #[ORM\PreUpdate]
     public function onPreUpdate(): void
     {
-        $this->updatedAt = new \DateTime();
+        $this->updatedAt = new DateTime();
     }
 
     public function getId(): ?Uuid
@@ -102,25 +103,13 @@ class Truck
         return $this;
     }
 
-    public function getCreatedAt(): ?\DateTimeInterface
+    public function getCreatedAt(): DateTimeInterface
     {
         return $this->createdAt;
     }
 
-    public function setCreatedAt(\DateTimeInterface $createdAt): static
-    {
-        $this->createdAt = $createdAt;
-        return $this;
-    }
-
-    public function getUpdatedAt(): ?\DateTimeInterface
+    public function getUpdatedAt(): DateTimeInterface
     {
         return $this->updatedAt;
-    }
-
-    public function setUpdatedAt(\DateTimeInterface $updatedAt): static
-    {
-        $this->updatedAt = $updatedAt;
-        return $this;
     }
 }

@@ -10,12 +10,12 @@ class FleetSetUpdateRequest
         max: 100,
         maxMessage: 'Name cannot be longer than {{ limit }} characters'
     )]
-    public ?string $name = null;
+    public ?string $name;
 
     #[Assert\Uuid(message: 'Truck ID must be a valid UUID')]
-    public ?string $truckId = null;
+    public ?string $truckId;
 
     #[Assert\Uuid(message: 'Trailer ID must be a valid UUID')]
-    public ?string $trailerId = null;
+    public ?string $trailerId;
 }
 

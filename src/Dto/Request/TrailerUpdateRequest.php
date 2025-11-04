@@ -10,25 +10,25 @@ class TrailerUpdateRequest
         max: 50,
         maxMessage: 'Registration number cannot be longer than {{ limit }} characters'
     )]
-    public ?string $registrationNumber = null;
+    public ?string $registrationNumber;
 
     #[Assert\Length(
         max: 100,
         maxMessage: 'Type cannot be longer than {{ limit }} characters'
     )]
-    public ?string $type = null;
+    public ?string $type;
 
     #[Assert\Positive(message: 'Capacity must be a positive number')]
     #[Assert\LessThanOrEqual(
         value: 999999.99,
         message: 'Capacity cannot exceed {{ compared_value }}'
     )]
-    public ?float $capacity = null;
+    public ?float $capacity;
 
     #[Assert\Choice(
         choices: ['operational', 'in_service'],
         message: 'Status must be either "operational" or "in_service"'
     )]
-    public ?string $status = null;
+    public ?string $status;
 }
 

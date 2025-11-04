@@ -5,7 +5,7 @@ namespace App\Repository;
 use App\Entity\FleetSet;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
-use Symfony\Component\Uid\Uuid;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
  * @extends ServiceEntityRepository<FleetSet>
@@ -17,9 +17,6 @@ class FleetSetRepository extends ServiceEntityRepository
         parent::__construct($registry, FleetSet::class);
     }
 
-    /**
-     * Save a fleet set entity
-     */
     public function save(FleetSet $entity, bool $flush = false): void
     {
         $this->getEntityManager()->persist($entity);
@@ -29,9 +26,6 @@ class FleetSetRepository extends ServiceEntityRepository
         }
     }
 
-    /**
-     * Remove a fleet set entity
-     */
     public function remove(FleetSet $entity, bool $flush = false): void
     {
         $this->getEntityManager()->remove($entity);
@@ -42,8 +36,20 @@ class FleetSetRepository extends ServiceEntityRepository
     }
 
     /**
-     * Find all fleet sets with their relationships loaded (truck, trailer, drivers)
-     *
+     * @throws NotFoundHttpException
+     */
+    public function findOrFail(string $id): FleetSet
+    {
+        $fleetSet = $this->find($id);
+
+        if (!$fleetSet) {
+            throw new NotFoundHttpException('FleetSet not found');
+        }
+
+        return $fleetSet;
+    }
+
+    /**
      * @return FleetSet[]
      */
     public function findAllWithRelations(): array
@@ -59,66 +65,47 @@ class FleetSetRepository extends ServiceEntityRepository
     }
 
     /**
-     * Find fleet sets by truck
-     *
-     * @return FleetSet[]
+     * @return array{total: int, works: int, free: int, downtime: int}
      */
-    public function findByTruck(Uuid $truckId): array
+    public function getFleetStatistics(): array
     {
-        return $this->createQueryBuilder('f')
-            ->where('f.truck = :truckId')
-            ->setParameter('truckId', $truckId, 'uuid')
+        $qb = $this->createQueryBuilder('f')
+            ->select('COUNT(f.id) as total')
+            ->leftJoin('f.truck', 't')
+            ->leftJoin('f.trailer', 'tr')
             ->leftJoin('f.drivers', 'd')
-            ->addSelect('d')
-            ->getQuery()
-            ->getResult();
-    }
+            ->leftJoin('App\Entity\Order', 'o', 'WITH', 'o.fleetSet = f.id AND o.status IN (:activeStatuses)')
+            ->setParameter('activeStatuses', ['pending', 'in_progress']);
 
-    /**
-     * Find fleet sets by trailer
-     *
-     * @return FleetSet[]
-     */
-    public function findByTrailer(Uuid $trailerId): array
-    {
-        return $this->createQueryBuilder('f')
-            ->where('f.trailer = :trailerId')
-            ->setParameter('trailerId', $trailerId, 'uuid')
-            ->leftJoin('f.drivers', 'd')
-            ->addSelect('d')
-            ->getQuery()
-            ->getResult();
-    }
+        $qb->addSelect(
+            "SUM(CASE
+                WHEN t.status = 'in_service' OR tr.status = 'in_service' THEN 1
+                WHEN o.id IS NOT NULL THEN 1
+                ELSE 0
+            END) as downtime"
+        );
 
-    /**
-     * Find fleet sets with at least one driver
-     *
-     * @return FleetSet[]
-     */
-    public function findActive(): array
-    {
-        return $this->createQueryBuilder('f')
-            ->leftJoin('f.drivers', 'd')
-            ->addSelect('d')
-            ->having('COUNT(d.id) > 0')
-            ->groupBy('f.id')
-            ->getQuery()
-            ->getResult();
-    }
+        $qb->addSelect(
+            "SUM(CASE
+                WHEN (t.status = 'operational' AND tr.status = 'operational' AND o.id IS NULL AND SIZE(f.drivers) > 0) THEN 1
+                ELSE 0
+            END) as works"
+        );
 
-    /**
-     * Find fleet sets with no drivers
-     *
-     * @return FleetSet[]
-     */
-    public function findFree(): array
-    {
-        return $this->createQueryBuilder('f')
-            ->leftJoin('f.drivers', 'd')
-            ->having('COUNT(d.id) = 0')
-            ->groupBy('f.id')
-            ->getQuery()
-            ->getResult();
+        $qb->addSelect(
+            "SUM(CASE
+                WHEN (t.status = 'operational' AND tr.status = 'operational' AND o.id IS NULL AND SIZE(f.drivers) = 0) THEN 1
+                ELSE 0
+            END) as free"
+        );
+
+        $result = $qb->getQuery()->getSingleResult();
+
+        return [
+            'total' => (int) $result['total'],
+            'works' => (int) ($result['works'] ?? 0),
+            'free' => (int) ($result['free'] ?? 0),
+            'downtime' => (int) ($result['downtime'] ?? 0),
+        ];
     }
 }
-
