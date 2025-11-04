@@ -35,45 +35,22 @@ readonly class DriverService
 
     public function update(Driver $driver, DriverUpdateDto $dto): Driver
     {
-        $this->updateFirstName($driver, $dto->firstName);
-        $this->updateLastName($driver, $dto->lastName);
-        $this->updateLicenseNumber($driver, $dto->licenseNumber);
-        $this->updateFleetSet($driver, $dto->fleetSetId);
+        $driver
+            ->setFirstName($dto->firstName)
+            ->setLastName($dto->lastName)
+            ->setLicenseNumber($dto->licenseNumber);
+
+        // Handle nullable fleetSet assignment (null = unassign driver)
+        if ($dto->fleetSetId !== null) {
+            $fleetSet = $this->fleetSetRepository->findOrFail($dto->fleetSetId);
+            $driver->setFleetSet($fleetSet);
+        } else {
+            $driver->setFleetSet(null);
+        }
 
         $this->driverRepository->save($driver, true);
 
         return $driver;
-    }
-
-    private function updateFirstName(Driver $driver, ?string $firstName): void
-    {
-        if ($firstName !== null) {
-            $driver->setFirstName($firstName);
-        }
-    }
-
-    private function updateLastName(Driver $driver, ?string $lastName): void
-    {
-        if ($lastName !== null) {
-            $driver->setLastName($lastName);
-        }
-    }
-
-    private function updateLicenseNumber(Driver $driver, ?string $licenseNumber): void
-    {
-        if ($licenseNumber !== null) {
-            $driver->setLicenseNumber($licenseNumber);
-        }
-    }
-
-    private function updateFleetSet(Driver $driver, ?string $fleetSetId): void
-    {
-        if ($fleetSetId === null) {
-            return;
-        }
-
-        $fleetSet = $this->fleetSetRepository->findOrFail($fleetSetId);
-        $driver->setFleetSet($fleetSet);
     }
 
     public function delete(Driver $driver): void

@@ -54,7 +54,7 @@ class TrailerController extends AbstractController
         return $this->json(TrailerResource::fromEntity($trailer), Response::HTTP_CREATED);
     }
 
-    #[Route('/{id}', methods: ['PUT', 'PATCH'])]
+    #[Route('/{id}', methods: ['PUT'])]
     public function update(Trailer $trailer, #[MapRequestPayload] TrailerUpdateRequest $request): JsonResponse
     {
         $dto = new TrailerUpdateDto(

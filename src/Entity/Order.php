@@ -19,7 +19,7 @@ class Order
     private ?Uuid $id;
 
     #[ORM\Column(length: 50, unique: true)]
-    private ?string $orderNumber = null;
+    private string $orderNumber;
 
     #[ORM\ManyToOne(targetEntity: Truck::class)]
     #[ORM\JoinColumn(name: 'truck_id', referencedColumnName: 'id', nullable: true)]
@@ -34,16 +34,16 @@ class Order
     private ?FleetSet $fleetSet = null;
 
     #[ORM\Column(length: 100)]
-    private ?string $serviceType = null;
+    private string $serviceType;
 
     #[ORM\Column(type: Types::TEXT)]
-    private ?string $description = null;
+    private string $description;
 
     #[ORM\Column(length: 20)]
-    private ?string $status = null;
+    private string $status;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
-    private ?DateTimeInterface $startDate = null;
+    private DateTimeInterface $startDate;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?DateTimeInterface $endDate = null;
@@ -77,7 +77,7 @@ class Order
         return $this->id;
     }
 
-    public function getOrderNumber(): ?string
+    public function getOrderNumber(): string
     {
         return $this->orderNumber;
     }
@@ -125,7 +125,7 @@ class Order
         return $this;
     }
 
-    public function getServiceType(): ?string
+    public function getServiceType(): string
     {
         return $this->serviceType;
     }
@@ -137,7 +137,7 @@ class Order
         return $this;
     }
 
-    public function getDescription(): ?string
+    public function getDescription(): string
     {
         return $this->description;
     }
@@ -149,7 +149,7 @@ class Order
         return $this;
     }
 
-    public function getStatus(): ?string
+    public function getStatus(): string
     {
         return $this->status;
     }
@@ -161,7 +161,7 @@ class Order
         return $this;
     }
 
-    public function getStartDate(): ?DateTimeInterface
+    public function getStartDate(): DateTimeInterface
     {
         return $this->startDate;
     }

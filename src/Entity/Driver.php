@@ -19,13 +19,13 @@ class Driver
     private ?Uuid $id;
 
     #[ORM\Column(length: 100)]
-    private ?string $firstName = null;
+    private string $firstName;
 
     #[ORM\Column(length: 100)]
-    private ?string $lastName = null;
+    private string $lastName;
 
     #[ORM\Column(length: 50, unique: true)]
-    private ?string $licenseNumber = null;
+    private string $licenseNumber;
 
     #[ORM\ManyToOne(targetEntity: FleetSet::class, inversedBy: 'drivers')]
     #[ORM\JoinColumn(name: 'fleet_set_id', referencedColumnName: 'id', nullable: true)]
@@ -60,7 +60,7 @@ class Driver
         return $this->id;
     }
 
-    public function getFirstName(): ?string
+    public function getFirstName(): string
     {
         return $this->firstName;
     }
@@ -71,7 +71,7 @@ class Driver
         return $this;
     }
 
-    public function getLastName(): ?string
+    public function getLastName(): string
     {
         return $this->lastName;
     }
@@ -82,7 +82,7 @@ class Driver
         return $this;
     }
 
-    public function getLicenseNumber(): ?string
+    public function getLicenseNumber(): string
     {
         return $this->licenseNumber;
     }

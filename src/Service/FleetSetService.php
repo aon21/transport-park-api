@@ -34,40 +34,17 @@ readonly class FleetSetService
 
     public function update(FleetSet $fleetSet, FleetSetUpdateDto $dto): FleetSet
     {
-        $this->updateName($fleetSet, $dto->name);
-        $this->updateTruck($fleetSet, $dto->truckId);
-        $this->updateTrailer($fleetSet, $dto->trailerId);
+        $truck = $this->truckRepository->findOrFail($dto->truckId);
+        $trailer = $this->trailerRepository->findOrFail($dto->trailerId);
+
+        $fleetSet
+            ->setName($dto->name)
+            ->setTruck($truck)
+            ->setTrailer($trailer);
 
         $this->fleetSetRepository->save($fleetSet, true);
 
         return $fleetSet;
-    }
-
-    private function updateName(FleetSet $fleetSet, ?string $name): void
-    {
-        if ($name !== null) {
-            $fleetSet->setName($name);
-        }
-    }
-
-    private function updateTruck(FleetSet $fleetSet, ?string $truckId): void
-    {
-        if ($truckId === null) {
-            return;
-        }
-
-        $truck = $this->truckRepository->findOrFail($truckId);
-        $fleetSet->setTruck($truck);
-    }
-
-    private function updateTrailer(FleetSet $fleetSet, ?string $trailerId): void
-    {
-        if ($trailerId === null) {
-            return;
-        }
-
-        $trailer = $this->trailerRepository->findOrFail($trailerId);
-        $fleetSet->setTrailer($trailer);
     }
 
     public function delete(FleetSet $fleetSet): void

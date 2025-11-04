@@ -54,7 +54,7 @@ class TruckController extends AbstractController
         return $this->json(TruckResource::fromEntity($truck), Response::HTTP_CREATED);
     }
 
-    #[Route('/{id}', methods: ['PUT', 'PATCH'])]
+    #[Route('/{id}', methods: ['PUT'])]
     public function update(Truck $uuid, #[MapRequestPayload] TruckUpdateRequest $request): JsonResponse
     {
         $dto = new TruckUpdateDto(

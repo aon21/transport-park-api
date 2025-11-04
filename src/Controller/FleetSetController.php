@@ -65,7 +65,7 @@ class FleetSetController extends AbstractController
         );
     }
 
-    #[Route('/{id}', methods: ['PUT', 'PATCH'])]
+    #[Route('/{id}', methods: ['PUT'])]
     public function update(FleetSet $fleetSet, #[MapRequestPayload] FleetSetUpdateRequest $request): JsonResponse
     {
         $dto = new FleetSetUpdateDto(

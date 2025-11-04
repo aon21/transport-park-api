@@ -29,42 +29,15 @@ readonly class TruckService
 
     public function update(Truck $truck, TruckUpdateDto $dto): Truck
     {
-        $this->updateRegistrationNumber($truck, $dto->registrationNumber);
-        $this->updateBrand($truck, $dto->brand);
-        $this->updateModel($truck, $dto->model);
-        $this->updateStatus($truck, $dto->status);
+        $truck
+            ->setRegistrationNumber($dto->registrationNumber)
+            ->setBrand($dto->brand)
+            ->setModel($dto->model)
+            ->setStatus($dto->status);
 
         $this->truckRepository->save($truck, true);
 
         return $truck;
-    }
-
-    private function updateRegistrationNumber(Truck $truck, ?string $registrationNumber): void
-    {
-        if ($registrationNumber !== null) {
-            $truck->setRegistrationNumber($registrationNumber);
-        }
-    }
-
-    private function updateBrand(Truck $truck, ?string $brand): void
-    {
-        if ($brand !== null) {
-            $truck->setBrand($brand);
-        }
-    }
-
-    private function updateModel(Truck $truck, ?string $model): void
-    {
-        if ($model !== null) {
-            $truck->setModel($model);
-        }
-    }
-
-    private function updateStatus(Truck $truck, ?string $status): void
-    {
-        if ($status !== null) {
-            $truck->setStatus($status);
-        }
     }
 
     public function delete(Truck $truck): void

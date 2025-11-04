@@ -139,7 +139,8 @@ class DriverControllerTest extends ApiTestCase
         $this->requestJson('PUT', '/api/drivers/' . $driver->getId()->toRfc4122(), [
             'firstName' => 'Updated',
             'lastName' => 'Name',
-            'licenseNumber' => 'LIC-001-UPDATED'
+            'licenseNumber' => 'LIC-001-UPDATED',
+            'fleetSetId' => null  // Explicitly unassign from fleet
         ]);
 
         $this->assertResponseStatusCodeSame(200);
@@ -147,6 +148,7 @@ class DriverControllerTest extends ApiTestCase
         $this->assertEquals('Updated', $json['firstName']);
         $this->assertEquals('Name', $json['lastName']);
         $this->assertEquals('LIC-001-UPDATED', $json['licenseNumber']);
+        $this->assertNull($json['fleetSetId']);
     }
 
     public function testDeleteRemovesDriver(): void

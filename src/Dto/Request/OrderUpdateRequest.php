@@ -6,39 +6,44 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 class OrderUpdateRequest
 {
+    #[Assert\NotBlank(message: 'Order number is required')]
     #[Assert\Length(
         max: 50,
         maxMessage: 'Order number cannot be longer than {{ limit }} characters'
     )]
-    public ?string $orderNumber = null;
+    public string $orderNumber;
 
     #[Assert\Uuid(message: 'Truck ID must be a valid UUID')]
-    public ?string $truckId = null;
+    public ?string $truckId = null;  // Nullable - optional assignment
 
     #[Assert\Uuid(message: 'Trailer ID must be a valid UUID')]
-    public ?string $trailerId = null;
+    public ?string $trailerId = null;  // Nullable - optional assignment
 
     #[Assert\Uuid(message: 'Fleet set ID must be a valid UUID')]
-    public ?string $fleetSetId = null;
+    public ?string $fleetSetId = null;  // Nullable - optional assignment
 
+    #[Assert\NotBlank(message: 'Service type is required')]
     #[Assert\Length(
         max: 100,
         maxMessage: 'Service type cannot be longer than {{ limit }} characters'
     )]
-    public ?string $serviceType = null;
+    public string $serviceType;
 
-    public ?string $description = null;
+    #[Assert\NotBlank(message: 'Description is required')]
+    public string $description;
 
+    #[Assert\NotBlank(message: 'Status is required')]
     #[Assert\Choice(
         choices: ['pending', 'in_progress', 'completed', 'cancelled'],
         message: 'Status must be one of: pending, in_progress, completed, cancelled'
     )]
-    public ?string $status = null;
+    public string $status;
 
+    #[Assert\NotBlank(message: 'Start date is required')]
     #[Assert\DateTime(message: 'Start date must be a valid date-time format')]
-    public ?string $startDate = null;
+    public string $startDate;
 
     #[Assert\DateTime(message: 'End date must be a valid date-time format')]
-    public ?string $endDate = null;
+    public ?string $endDate = null;  // Nullable - optional completion date
 }
 

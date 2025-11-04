@@ -6,25 +6,28 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 class DriverUpdateRequest
 {
+    #[Assert\NotBlank(message: 'First name is required')]
     #[Assert\Length(
         max: 100,
         maxMessage: 'First name cannot be longer than {{ limit }} characters'
     )]
-    public ?string $firstName = null;
+    public string $firstName;
 
+    #[Assert\NotBlank(message: 'Last name is required')]
     #[Assert\Length(
         max: 100,
         maxMessage: 'Last name cannot be longer than {{ limit }} characters'
     )]
-    public ?string $lastName = null;
+    public string $lastName;
 
+    #[Assert\NotBlank(message: 'License number is required')]
     #[Assert\Length(
         max: 50,
         maxMessage: 'License number cannot be longer than {{ limit }} characters'
     )]
-    public ?string $licenseNumber = null;
+    public string $licenseNumber;
 
     #[Assert\Uuid(message: 'Fleet set ID must be a valid UUID')]
-    public ?string $fleetSetId = null;
+    public ?string $fleetSetId = null;  // Nullable - can unassign driver
 }
 

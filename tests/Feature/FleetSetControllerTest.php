@@ -117,14 +117,20 @@ class FleetSetControllerTest extends ApiTestCase
     {
         $references = $this->loadFixtures([FleetSetFixtures::class]);
         $fleetSet = $references->getReference(FleetSetFixtures::FLEET_1, \App\Entity\FleetSet::class);
+        $truck = $references->getReference(\App\Tests\Fixtures\TruckFixtures::TRUCK_1, \App\Entity\Truck::class);
+        $trailer = $references->getReference(\App\Tests\Fixtures\TrailerFixtures::TRAILER_2, \App\Entity\Trailer::class);
 
         $this->requestJson('PUT', '/api/fleet-sets/' . $fleetSet->getId()->toRfc4122(), [
-            'name' => 'Updated Fleet Name'
+            'name' => 'Updated Fleet Name',
+            'truckId' => $truck->getId()->toRfc4122(),
+            'trailerId' => $trailer->getId()->toRfc4122()
         ]);
 
         $this->assertResponseStatusCodeSame(200);
         $json = $this->getJsonResponse();
         $this->assertEquals('Updated Fleet Name', $json['name']);
+        $this->assertEquals($truck->getId()->toRfc4122(), $json['truckId']);
+        $this->assertEquals($trailer->getId()->toRfc4122(), $json['trailerId']);
     }
 
     public function testDeleteRemovesFleetSet(): void
