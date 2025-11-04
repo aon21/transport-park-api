@@ -7,3 +7,5 @@
 /vendor/
 /memory_docs
 .idea/
+
+.phpunit.cache
