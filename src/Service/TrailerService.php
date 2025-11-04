@@ -2,8 +2,8 @@
 
 namespace App\Service;
 
-use App\Dto\Request\TrailerCreateRequest;
-use App\Dto\Request\TrailerUpdateRequest;
+use App\Dto\TrailerCreateDto;
+use App\Dto\TrailerUpdateDto;
 use App\Entity\Trailer;
 use App\Repository\TrailerRepository;
 
@@ -14,7 +14,7 @@ readonly class TrailerService
     ) {
     }
 
-    public function create(TrailerCreateRequest $dto): Trailer
+    public function create(TrailerCreateDto $dto): Trailer
     {
         $trailer = (new Trailer())
             ->setRegistrationNumber($dto->registrationNumber)
@@ -27,7 +27,7 @@ readonly class TrailerService
         return $trailer;
     }
 
-    public function update(Trailer $trailer, TrailerUpdateRequest $dto): Trailer
+    public function update(Trailer $trailer, TrailerUpdateDto $dto): Trailer
     {
         $this->updateRegistrationNumber($trailer, $dto->registrationNumber);
         $this->updateType($trailer, $dto->type);

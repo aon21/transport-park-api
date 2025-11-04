@@ -5,6 +5,8 @@ namespace App\Controller;
 use App\Dto\Request\TrailerCreateRequest;
 use App\Dto\Request\TrailerUpdateRequest;
 use App\Dto\Response\TrailerResource;
+use App\Dto\TrailerCreateDto;
+use App\Dto\TrailerUpdateDto;
 use App\Entity\Trailer;
 use App\Repository\TrailerRepository;
 use App\Service\TrailerService;
@@ -40,7 +42,14 @@ class TrailerController extends AbstractController
     #[Route('', methods: ['POST'])]
     public function create(#[MapRequestPayload] TrailerCreateRequest $request): JsonResponse
     {
-        $trailer = $this->trailerService->create($request);
+        $dto = new TrailerCreateDto(
+            registrationNumber: $request->registrationNumber,
+            type: $request->type,
+            capacity: $request->capacity,
+            status: $request->status
+        );
+
+        $trailer = $this->trailerService->create($dto);
 
         return $this->json(TrailerResource::fromEntity($trailer), Response::HTTP_CREATED);
     }
@@ -48,7 +57,14 @@ class TrailerController extends AbstractController
     #[Route('/{id}', methods: ['PUT', 'PATCH'])]
     public function update(Trailer $trailer, #[MapRequestPayload] TrailerUpdateRequest $request): JsonResponse
     {
-        $trailer = $this->trailerService->update($trailer, $request);
+        $dto = new TrailerUpdateDto(
+            registrationNumber: $request->registrationNumber,
+            type: $request->type,
+            capacity: $request->capacity,
+            status: $request->status
+        );
+
+        $trailer = $this->trailerService->update($trailer, $dto);
 
         return $this->json(TrailerResource::fromEntity($trailer));
     }

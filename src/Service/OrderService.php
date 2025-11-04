@@ -2,8 +2,8 @@
 
 namespace App\Service;
 
-use App\Dto\Request\OrderCreateRequest;
-use App\Dto\Request\OrderUpdateRequest;
+use App\Dto\OrderCreateDto;
+use App\Dto\OrderUpdateDto;
 use App\Entity\Order;
 use App\Repository\OrderRepository;
 use App\Repository\TruckRepository;
@@ -25,7 +25,7 @@ readonly class OrderService
     /**
      * @throws Exception
      */
-    public function create(OrderCreateRequest $dto): Order
+    public function create(OrderCreateDto $dto): Order
     {
         $order = (new Order())
             ->setOrderNumber($dto->orderNumber)
@@ -47,7 +47,7 @@ readonly class OrderService
     /**
      * @throws Exception
      */
-    public function update(Order $order, OrderUpdateRequest $dto): Order
+    public function update(Order $order, OrderUpdateDto $dto): Order
     {
         $this->updateOrderNumber($order, $dto->orderNumber);
         $this->updateServiceType($order, $dto->serviceType);

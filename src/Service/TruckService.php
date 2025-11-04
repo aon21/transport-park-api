@@ -2,8 +2,8 @@
 
 namespace App\Service;
 
-use App\Dto\Request\TruckCreateRequest;
-use App\Dto\Request\TruckUpdateRequest;
+use App\Dto\TruckCreateDto;
+use App\Dto\TruckUpdateDto;
 use App\Entity\Truck;
 use App\Repository\TruckRepository;
 
@@ -14,7 +14,7 @@ readonly class TruckService
     ) {
     }
 
-    public function create(TruckCreateRequest $dto): Truck
+    public function create(TruckCreateDto $dto): Truck
     {
         $truck = (new Truck())
             ->setRegistrationNumber($dto->registrationNumber)
@@ -27,7 +27,7 @@ readonly class TruckService
         return $truck;
     }
 
-    public function update(Truck $truck, TruckUpdateRequest $dto): Truck
+    public function update(Truck $truck, TruckUpdateDto $dto): Truck
     {
         $this->updateRegistrationNumber($truck, $dto->registrationNumber);
         $this->updateBrand($truck, $dto->brand);
