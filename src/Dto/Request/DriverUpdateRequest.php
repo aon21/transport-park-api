@@ -28,6 +28,6 @@ class DriverUpdateRequest
     public string $licenseNumber;
 
     #[Assert\Uuid(message: 'Fleet set ID must be a valid UUID')]
-    public ?string $fleetSetId = null;  // Nullable - can unassign driver
+    public ?string $fleetSetId = null;
 }
 

@@ -2,8 +2,8 @@
 
 [![PHP Version](https://img.shields.io/badge/PHP-8.2%2B-blue)](https://www.php.net/)
 [![Symfony](https://img.shields.io/badge/Symfony-7.3-black)](https://symfony.com/)
-[![Tests](https://img.shields.io/badge/tests-71%20passed-brightgreen)](#test-coverage)
-[![Coverage](https://img.shields.io/badge/coverage-99.30%25-brightgreen)](coverage/index.html)
+[![Tests](https://img.shields.io/badge/tests-91%20passed-brightgreen)](#test-coverage)
+[![Coverage](https://img.shields.io/badge/coverage-99.82%25-brightgreen)](coverage/index.html)
 
 REST API for managing transport park operations including trucks, trailers, drivers, fleet sets, and service orders.
 
@@ -55,8 +55,8 @@ composer test:coverage
 ```
 ### Test Coverage
 
-- **Overall Coverage**: 99.30% lines, 98.38% methods
-- **Test Suite**: 71 tests with 234 assertions
+- **Overall Coverage**: 99.82% lines, 99.46% methods
+- **Test Suite**: 91 tests with 260 assertions
 
 ## API Endpoints
 

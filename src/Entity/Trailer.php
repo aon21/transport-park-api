@@ -24,8 +24,8 @@ class Trailer
     #[ORM\Column(length: 100)]
     private string $type;
 
-    #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2)]
-    private string $capacity;
+    #[ORM\Column(type: Types::FLOAT)]
+    private float $capacity;
 
     #[ORM\Column(length: 20)]
     private string $status = 'operational';
@@ -81,12 +81,12 @@ class Trailer
         return $this;
     }
 
-    public function getCapacity(): string
+    public function getCapacity(): float
     {
         return $this->capacity;
     }
 
-    public function setCapacity(string $capacity): static
+    public function setCapacity(float $capacity): static
     {
         $this->capacity = $capacity;
         return $this;

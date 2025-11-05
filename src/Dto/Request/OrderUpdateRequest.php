@@ -2,8 +2,10 @@
 
 namespace App\Dto\Request;
 
+use App\Validator\Constraints\AtLeastOneOrderAsset;
 use Symfony\Component\Validator\Constraints as Assert;
 
+#[AtLeastOneOrderAsset]
 class OrderUpdateRequest
 {
     #[Assert\NotBlank(message: 'Order number is required')]
@@ -14,13 +16,13 @@ class OrderUpdateRequest
     public string $orderNumber;
 
     #[Assert\Uuid(message: 'Truck ID must be a valid UUID')]
-    public ?string $truckId = null;  // Nullable - optional assignment
+    public ?string $truckId = null;
 
     #[Assert\Uuid(message: 'Trailer ID must be a valid UUID')]
-    public ?string $trailerId = null;  // Nullable - optional assignment
+    public ?string $trailerId = null;
 
     #[Assert\Uuid(message: 'Fleet set ID must be a valid UUID')]
-    public ?string $fleetSetId = null;  // Nullable - optional assignment
+    public ?string $fleetSetId = null;
 
     #[Assert\NotBlank(message: 'Service type is required')]
     #[Assert\Length(
@@ -44,6 +46,6 @@ class OrderUpdateRequest
     public string $startDate;
 
     #[Assert\DateTime(message: 'End date must be a valid date-time format')]
-    public ?string $endDate = null;  // Nullable - optional completion date
+    public ?string $endDate = null;
 }
 

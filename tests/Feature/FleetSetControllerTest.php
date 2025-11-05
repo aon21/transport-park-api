@@ -22,36 +22,27 @@ class FleetSetControllerTest extends ApiTestCase
         $json = $this->getJsonResponse();
         $this->assertIsArray($json);
         $this->assertCount(4, $json);
-        $this->assertArrayHasKey('id', $json[0]);
-        $this->assertArrayHasKey('name', $json[0]);
-        $this->assertArrayHasKey('truckId', $json[0]);
-        $this->assertArrayHasKey('trailerId', $json[0]);
+        $this->assertHasJsonKeys(['id', 'name', 'truckId', 'trailerId'], $json[0]);
     }
 
     public function testShowReturnsFleetSetById(): void
     {
-        $references = $this->loadFixtures([FleetSetFixtures::class]);
-        $fleetSet = $references->getReference(FleetSetFixtures::FLEET_1, FleetSet::class);
+        $fleetSet = $this->loadFixtures([FleetSetFixtures::class])
+            ->getReference(FleetSetFixtures::FLEET_1, FleetSet::class);
 
         $this->client->request('GET', '/api/fleet-sets/' . $fleetSet->getId()->toRfc4122());
 
         $this->assertResponseStatusCodeSame(200);
         $json = $this->getJsonResponse();
         $this->assertEquals('Fleet Alpha', $json['name']);
-        $this->assertArrayHasKey('truckId', $json);
-        $this->assertArrayHasKey('trailerId', $json);
-        $this->assertArrayHasKey('status', $json);
+        $this->assertHasJsonKeys(['truckId', 'trailerId', 'status'], $json);
     }
 
     public function testShowReturns404WhenFleetSetNotFound(): void
     {
         $this->loadFixtures([FleetSetFixtures::class]);
-
-        $this->client->request('GET', '/api/fleet-sets/123e4567-e89b-12d3-a456-426614174000');
-
-        $this->assertResponseStatusCodeSame(404);
-        $json = $this->getJsonResponse();
-        $this->assertArrayHasKey('error', $json);
+        $this->client->request('GET', '/api/fleet-sets/' . $this->getNonExistentUuid());
+        $this->assertErrorResponse(404);
     }
 
     public function testCreateCreatesNewFleetSetWithValidData(): void
@@ -76,46 +67,36 @@ class FleetSetControllerTest extends ApiTestCase
     public function testCreateReturns422WithMissingRequiredFields(): void
     {
         $this->loadFixtures([FleetSetFixtures::class]);
-
-        $this->requestJson('POST', '/api/fleet-sets', [
-            'name' => 'Incomplete Fleet'
-        ]);
-
-        $this->assertResponseStatusCodeSame(422);
-        $json = $this->getJsonResponse();
-        $this->assertArrayHasKey('error', $json);
+        $this->requestJson('POST', '/api/fleet-sets', ['name' => 'Incomplete Fleet']);
+        $this->assertErrorResponse();
     }
 
     public function testCreateReturns404WithInvalidTruckId(): void
     {
-        $references = $this->loadFixtures([FleetSetFixtures::class]);
-        $trailer = $references->getReference(TrailerFixtures::TRAILER_5_IN_SERVICE, Trailer::class);
+        $trailer = $this->loadFixtures([FleetSetFixtures::class])
+            ->getReference(TrailerFixtures::TRAILER_5_IN_SERVICE, Trailer::class);
 
         $this->requestJson('POST', '/api/fleet-sets', [
             'name' => 'Invalid Truck Fleet',
-            'truckId' => '123e4567-e89b-12d3-a456-426614174000',
+            'truckId' => $this->getNonExistentUuid(),
             'trailerId' => $trailer->getId()->toRfc4122()
         ]);
 
-        $this->assertResponseStatusCodeSame(404);
-        $json = $this->getJsonResponse();
-        $this->assertArrayHasKey('error', $json);
+        $this->assertErrorResponse(404);
     }
 
     public function testCreateReturns404WithInvalidTrailerId(): void
     {
-        $references = $this->loadFixtures([FleetSetFixtures::class]);
-        $truck = $references->getReference(TruckFixtures::TRUCK_5_IN_SERVICE, Truck::class);
+        $truck = $this->loadFixtures([FleetSetFixtures::class])
+            ->getReference(TruckFixtures::TRUCK_5_IN_SERVICE, Truck::class);
 
         $this->requestJson('POST', '/api/fleet-sets', [
             'name' => 'Invalid Trailer Fleet',
             'truckId' => $truck->getId()->toRfc4122(),
-            'trailerId' => '123e4567-e89b-12d3-a456-426614174000'
+            'trailerId' => $this->getNonExistentUuid()
         ]);
 
-        $this->assertResponseStatusCodeSame(404);
-        $json = $this->getJsonResponse();
-        $this->assertArrayHasKey('error', $json);
+        $this->assertErrorResponse(404);
     }
 
     public function testUpdateModifiesFleetSetWithValidData(): void
@@ -140,11 +121,10 @@ class FleetSetControllerTest extends ApiTestCase
 
     public function testDeleteRemovesFleetSet(): void
     {
-        $references = $this->loadFixtures([FleetSetFixtures::class]);
-        $fleetSet = $references->getReference(FleetSetFixtures::FLEET_3, FleetSet::class);
+        $fleetSet = $this->loadFixtures([FleetSetFixtures::class])
+            ->getReference(FleetSetFixtures::FLEET_3, FleetSet::class);
 
         $this->client->request('DELETE', '/api/fleet-sets/' . $fleetSet->getId()->toRfc4122());
-
         $this->assertResponseStatusCodeSame(204);
     }
 
@@ -156,13 +136,7 @@ class FleetSetControllerTest extends ApiTestCase
 
         $this->assertResponseStatusCodeSame(200);
         $json = $this->getJsonResponse();
-        $this->assertArrayHasKey('total', $json);
-        $this->assertArrayHasKey('works', $json);
-        $this->assertArrayHasKey('free', $json);
-        $this->assertArrayHasKey('downtime', $json);
-        $this->assertArrayHasKey('available', $json);
-        $this->assertArrayHasKey('utilizationRate', $json);
+        $this->assertHasJsonKeys(['total', 'works', 'free', 'downtime', 'available', 'utilizationRate'], $json);
         $this->assertEquals(4, $json['total']);
     }
 }
-

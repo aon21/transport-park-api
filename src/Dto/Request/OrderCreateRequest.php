@@ -2,8 +2,10 @@
 
 namespace App\Dto\Request;
 
+use App\Validator\Constraints\AtLeastOneOrderAsset;
 use Symfony\Component\Validator\Constraints as Assert;
 
+#[AtLeastOneOrderAsset]
 class OrderCreateRequest
 {
     #[Assert\NotBlank(message: 'Order number is required')]

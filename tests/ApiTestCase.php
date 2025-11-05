@@ -41,5 +41,32 @@ abstract class ApiTestCase extends WebTestCase
     {
         return json_decode($this->client->getResponse()->getContent(), true);
     }
+
+    protected function assertHasJsonKeys(array $keys, ?array $data = null): void
+    {
+        $json = $data ?? $this->getJsonResponse();
+        foreach ($keys as $key) {
+            $this->assertArrayHasKey($key, $json);
+        }
+    }
+
+    protected function assertJsonFields(array $expectedFields): void
+    {
+        $json = $this->getJsonResponse();
+        foreach ($expectedFields as $field => $value) {
+            $this->assertEquals($value, $json[$field]);
+        }
+    }
+
+    protected function assertErrorResponse(int $expectedStatus = 422): void
+    {
+        $this->assertResponseStatusCodeSame($expectedStatus);
+        $this->assertArrayHasKey('error', $this->getJsonResponse());
+    }
+
+    protected function getNonExistentUuid(): string
+    {
+        return '123e4567-e89b-12d3-a456-426614174000';
+    }
 }
 

@@ -20,33 +20,29 @@ class DriverControllerTest extends ApiTestCase
         $json = $this->getJsonResponse();
         $this->assertIsArray($json);
         $this->assertCount(8, $json);
-        $this->assertArrayHasKey('id', $json[0]);
-        $this->assertArrayHasKey('firstName', $json[0]);
+        $this->assertHasJsonKeys(['id', 'firstName'], $json[0]);
     }
 
     public function testShowReturnsDriverById(): void
     {
-        $references = $this->loadFixtures([DriverFixtures::class]);
-        $driver = $references->getReference(DriverFixtures::DRIVER_1, Driver::class);
+        $driver = $this->loadFixtures([DriverFixtures::class])
+            ->getReference(DriverFixtures::DRIVER_1, Driver::class);
 
         $this->client->request('GET', '/api/drivers/' . $driver->getId()->toRfc4122());
 
         $this->assertResponseStatusCodeSame(200);
-        $json = $this->getJsonResponse();
-        $this->assertEquals('John', $json['firstName']);
-        $this->assertEquals('Doe', $json['lastName']);
-        $this->assertEquals('LIC-001', $json['licenseNumber']);
+        $this->assertJsonFields([
+            'firstName' => 'John',
+            'lastName' => 'Doe',
+            'licenseNumber' => 'LIC-001'
+        ]);
     }
 
     public function testShowReturns404WhenDriverNotFound(): void
     {
         $this->loadFixtures([DriverFixtures::class]);
-
-        $this->client->request('GET', '/api/drivers/123e4567-e89b-12d3-a456-426614174000');
-
-        $this->assertResponseStatusCodeSame(404);
-        $json = $this->getJsonResponse();
-        $this->assertArrayHasKey('error', $json);
+        $this->client->request('GET', '/api/drivers/' . $this->getNonExistentUuid());
+        $this->assertErrorResponse(404);
     }
 
     public function testCreateCreatesNewDriverWithValidData(): void
@@ -60,16 +56,17 @@ class DriverControllerTest extends ApiTestCase
         ]);
 
         $this->assertResponseStatusCodeSame(201);
-        $json = $this->getJsonResponse();
-        $this->assertEquals('Test', $json['firstName']);
-        $this->assertEquals('Driver', $json['lastName']);
-        $this->assertEquals('LIC-100', $json['licenseNumber']);
+        $this->assertJsonFields([
+            'firstName' => 'Test',
+            'lastName' => 'Driver',
+            'licenseNumber' => 'LIC-100'
+        ]);
     }
 
     public function testCreateDriverWithFleetSet(): void
     {
-        $references = $this->loadFixtures([FleetSetFixtures::class]);
-        $fleetSet = $references->getReference(FleetSetFixtures::FLEET_1, FleetSet::class);
+        $fleetSet = $this->loadFixtures([FleetSetFixtures::class])
+            ->getReference(FleetSetFixtures::FLEET_1, FleetSet::class);
 
         $this->requestJson('POST', '/api/drivers', [
             'firstName' => 'Fleet',
@@ -88,14 +85,8 @@ class DriverControllerTest extends ApiTestCase
     public function testCreateReturns422WithMissingRequiredFields(): void
     {
         $this->loadFixtures([DriverFixtures::class]);
-
-        $this->requestJson('POST', '/api/drivers', [
-            'firstName' => 'Test'
-        ]);
-
-        $this->assertResponseStatusCodeSame(422);
-        $json = $this->getJsonResponse();
-        $this->assertArrayHasKey('error', $json);
+        $this->requestJson('POST', '/api/drivers', ['firstName' => 'Test']);
+        $this->assertErrorResponse();
     }
 
     public function testCreateReturns422WithInvalidFleetSetId(): void
@@ -109,9 +100,7 @@ class DriverControllerTest extends ApiTestCase
             'fleetSetId' => 'invalid-uuid'
         ]);
 
-        $this->assertResponseStatusCodeSame(422);
-        $json = $this->getJsonResponse();
-        $this->assertArrayHasKey('error', $json);
+        $this->assertErrorResponse();
     }
 
     public function testCreateReturns422WithDuplicateLicenseNumber(): void
@@ -125,42 +114,37 @@ class DriverControllerTest extends ApiTestCase
         ]);
 
         $statusCode = $this->client->getResponse()->getStatusCode();
-        $this->assertTrue(
-            in_array($statusCode, [422, 500]),
-            'Expected 422 or 500 for duplicate license number'
-        );
-        $json = $this->getJsonResponse();
-        $this->assertArrayHasKey('error', $json);
+        $this->assertTrue(in_array($statusCode, [422, 500]));
+        $this->assertArrayHasKey('error', $this->getJsonResponse());
     }
 
     public function testUpdateModifiesDriverWithValidData(): void
     {
-        $references = $this->loadFixtures([DriverFixtures::class]);
-        $driver = $references->getReference(DriverFixtures::DRIVER_1, Driver::class);
+        $driver = $this->loadFixtures([DriverFixtures::class])
+            ->getReference(DriverFixtures::DRIVER_1, Driver::class);
 
         $this->requestJson('PUT', '/api/drivers/' . $driver->getId()->toRfc4122(), [
             'firstName' => 'Updated',
             'lastName' => 'Name',
             'licenseNumber' => 'LIC-001-UPDATED',
-            'fleetSetId' => null  // Explicitly unassign from fleet
+            'fleetSetId' => null
         ]);
 
         $this->assertResponseStatusCodeSame(200);
-        $json = $this->getJsonResponse();
-        $this->assertEquals('Updated', $json['firstName']);
-        $this->assertEquals('Name', $json['lastName']);
-        $this->assertEquals('LIC-001-UPDATED', $json['licenseNumber']);
-        $this->assertNull($json['fleetSetId']);
+        $this->assertJsonFields([
+            'firstName' => 'Updated',
+            'lastName' => 'Name',
+            'licenseNumber' => 'LIC-001-UPDATED'
+        ]);
+        $this->assertNull($this->getJsonResponse()['fleetSetId']);
     }
 
     public function testDeleteRemovesDriver(): void
     {
-        $references = $this->loadFixtures([DriverFixtures::class]);
-        $driver = $references->getReference(DriverFixtures::DRIVER_8, Driver::class);
+        $driver = $this->loadFixtures([DriverFixtures::class])
+            ->getReference(DriverFixtures::DRIVER_8, Driver::class);
 
         $this->client->request('DELETE', '/api/drivers/' . $driver->getId()->toRfc4122());
-
         $this->assertResponseStatusCodeSame(204);
     }
 }
-
