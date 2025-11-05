@@ -2,6 +2,7 @@
 
 namespace App\Tests\Feature;
 
+use App\Entity\Trailer;
 use App\Tests\ApiTestCase;
 use App\Tests\Fixtures\FleetSetFixtures;
 use App\Tests\Fixtures\TrailerFixtures;
@@ -25,7 +26,7 @@ class TrailerControllerTest extends ApiTestCase
     public function testShowReturnsTrailerById(): void
     {
         $references = $this->loadFixtures([TrailerFixtures::class]);
-        $trailer = $references->getReference(TrailerFixtures::TRAILER_1, \App\Entity\Trailer::class);
+        $trailer = $references->getReference(TrailerFixtures::TRAILER_1, Trailer::class);
 
         $this->client->request('GET', '/api/trailers/' . $trailer->getId()->toRfc4122());
 
@@ -119,7 +120,7 @@ class TrailerControllerTest extends ApiTestCase
     public function testUpdateModifiesTrailerWithValidData(): void
     {
         $references = $this->loadFixtures([TrailerFixtures::class]);
-        $trailer = $references->getReference(TrailerFixtures::TRAILER_1, \App\Entity\Trailer::class);
+        $trailer = $references->getReference(TrailerFixtures::TRAILER_1, Trailer::class);
 
         $this->requestJson('PUT', '/api/trailers/' . $trailer->getId()->toRfc4122(), [
             'registrationNumber' => 'TRAILER-001-UPDATED',
@@ -139,7 +140,7 @@ class TrailerControllerTest extends ApiTestCase
     public function testDeleteRemovesTrailer(): void
     {
         $references = $this->loadFixtures([TrailerFixtures::class]);
-        $trailer = $references->getReference(TrailerFixtures::TRAILER_5_IN_SERVICE, \App\Entity\Trailer::class);
+        $trailer = $references->getReference(TrailerFixtures::TRAILER_5_IN_SERVICE, Trailer::class);
 
         $this->client->request('DELETE', '/api/trailers/' . $trailer->getId()->toRfc4122());
 
@@ -149,7 +150,7 @@ class TrailerControllerTest extends ApiTestCase
     public function testDeleteTrailerUsedInFleetSet(): void
     {
         $references = $this->loadFixtures([TrailerFixtures::class, FleetSetFixtures::class]);
-        $trailer = $references->getReference(TrailerFixtures::TRAILER_1, \App\Entity\Trailer::class);
+        $trailer = $references->getReference(TrailerFixtures::TRAILER_1, Trailer::class);
 
         $this->client->request('DELETE', '/api/trailers/' . $trailer->getId()->toRfc4122());
 
