@@ -16,6 +16,12 @@ use Symfony\Component\Uid\Uuid;
 #[ORM\HasLifecycleCallbacks]
 class FleetSet
 {
+    public const STATUS_DOWNTIME = 'downtime';
+    public const STATUS_WORKS = 'works';
+    public const STATUS_FREE = 'free';
+    
+    private const VEHICLE_STATUS_IN_SERVICE = 'in_service';
+
     #[ORM\Id]
     #[ORM\Column(type: 'uuid', unique: true)]
     private ?Uuid $id;
@@ -123,15 +129,26 @@ class FleetSet
 
     public function getStatus(): string
     {
-        if ($this->truck->getStatus() === 'in_service' || $this->trailer->getStatus() === 'in_service') {
-            return 'downtime';
+        if ($this->isInDowntime()) {
+            return self::STATUS_DOWNTIME;
         }
 
-        if ($this->drivers->count() > 0) {
-            return 'works';
+        if ($this->hasDrivers()) {
+            return self::STATUS_WORKS;
         }
 
-        return 'free';
+        return self::STATUS_FREE;
+    }
+
+    private function isInDowntime(): bool
+    {
+        return $this->truck->getStatus() === self::VEHICLE_STATUS_IN_SERVICE
+            || $this->trailer->getStatus() === self::VEHICLE_STATUS_IN_SERVICE;
+    }
+
+    private function hasDrivers(): bool
+    {
+        return $this->drivers->count() > 0;
     }
 }
 

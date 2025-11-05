@@ -32,12 +32,11 @@ readonly class OrderService
             ->setServiceType($dto->serviceType)
             ->setDescription($dto->description)
             ->setStatus($dto->status)
-            ->setStartDate(new DateTime($dto->startDate));
-
-        $this->setOptionalEndDate($order, $dto->endDate);
-        $this->setOptionalTruck($order, $dto->truckId);
-        $this->setOptionalTrailer($order, $dto->trailerId);
-        $this->setOptionalFleetSet($order, $dto->fleetSetId);
+            ->setStartDate(new DateTime($dto->startDate))
+            ->setEndDate($dto->endDate ? new DateTime($dto->endDate) : null)
+            ->setTruck($dto->truckId ? $this->truckRepository->findOrFail($dto->truckId) : null)
+            ->setTrailer($dto->trailerId ? $this->trailerRepository->findOrFail($dto->trailerId) : null)
+            ->setFleetSet($dto->fleetSetId ? $this->fleetSetRepository->findOrFail($dto->fleetSetId) : null);
 
         $this->orderRepository->save($order, true);
 
@@ -54,48 +53,15 @@ readonly class OrderService
             ->setServiceType($dto->serviceType)
             ->setDescription($dto->description)
             ->setStatus($dto->status)
-            ->setStartDate(new DateTime($dto->startDate));
-
-        // Handle nullable relationships (null = unassign)
-        $order->setTruck($dto->truckId ? $this->truckRepository->findOrFail($dto->truckId) : null);
-        $order->setTrailer($dto->trailerId ? $this->trailerRepository->findOrFail($dto->trailerId) : null);
-        $order->setFleetSet($dto->fleetSetId ? $this->fleetSetRepository->findOrFail($dto->fleetSetId) : null);
-        $order->setEndDate($dto->endDate ? new DateTime($dto->endDate) : null);
+            ->setStartDate(new DateTime($dto->startDate))
+            ->setEndDate($dto->endDate ? new DateTime($dto->endDate) : null)
+            ->setTruck($dto->truckId ? $this->truckRepository->findOrFail($dto->truckId) : null)
+            ->setTrailer($dto->trailerId ? $this->trailerRepository->findOrFail($dto->trailerId) : null)
+            ->setFleetSet($dto->fleetSetId ? $this->fleetSetRepository->findOrFail($dto->fleetSetId) : null);
 
         $this->orderRepository->save($order, true);
 
         return $order;
-    }
-
-    /**
-     * @throws Exception
-     */
-    private function setOptionalEndDate(Order $order, ?string $endDate): void
-    {
-        if ($endDate !== null) {
-            $order->setEndDate(new DateTime($endDate));
-        }
-    }
-
-    private function setOptionalTruck(Order $order, ?string $truckId): void
-    {
-        if ($truckId !== null) {
-            $order->setTruck($this->truckRepository->findOrFail($truckId));
-        }
-    }
-
-    private function setOptionalTrailer(Order $order, ?string $trailerId): void
-    {
-        if ($trailerId !== null) {
-            $order->setTrailer($this->trailerRepository->findOrFail($trailerId));
-        }
-    }
-
-    private function setOptionalFleetSet(Order $order, ?string $fleetSetId): void
-    {
-        if ($fleetSetId !== null) {
-            $order->setFleetSet($this->fleetSetRepository->findOrFail($fleetSetId));
-        }
     }
 
     public function delete(Order $order): void

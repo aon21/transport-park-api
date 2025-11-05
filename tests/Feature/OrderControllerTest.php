@@ -22,40 +22,35 @@ class OrderControllerTest extends ApiTestCase
         $json = $this->getJsonResponse();
         $this->assertIsArray($json);
         $this->assertCount(5, $json);
-        $this->assertArrayHasKey('id', $json[0]);
-        $this->assertArrayHasKey('orderNumber', $json[0]);
-        $this->assertArrayHasKey('status', $json[0]);
+        $this->assertHasJsonKeys(['id', 'orderNumber', 'status'], $json[0]);
     }
 
     public function testShowReturnsOrderById(): void
     {
-        $references = $this->loadFixtures([OrderFixtures::class]);
-        $order = $references->getReference(OrderFixtures::ORDER_1_PENDING, Order::class);
+        $order = $this->loadFixtures([OrderFixtures::class])
+            ->getReference(OrderFixtures::ORDER_1_PENDING, Order::class);
 
         $this->client->request('GET', '/api/orders/' . $order->getId()->toRfc4122());
 
         $this->assertResponseStatusCodeSame(200);
-        $json = $this->getJsonResponse();
-        $this->assertEquals('ORD-001', $json['orderNumber']);
-        $this->assertEquals('Maintenance', $json['serviceType']);
-        $this->assertEquals('pending', $json['status']);
+        $this->assertJsonFields([
+            'orderNumber' => 'ORD-001',
+            'serviceType' => 'Maintenance',
+            'status' => 'pending'
+        ]);
     }
 
     public function testShowReturns404WhenOrderNotFound(): void
     {
         $this->loadFixtures([OrderFixtures::class]);
-
-        $this->client->request('GET', '/api/orders/123e4567-e89b-12d3-a456-426614174000');
-
-        $this->assertResponseStatusCodeSame(404);
-        $json = $this->getJsonResponse();
-        $this->assertArrayHasKey('error', $json);
+        $this->client->request('GET', '/api/orders/' . $this->getNonExistentUuid());
+        $this->assertErrorResponse(404);
     }
 
     public function testCreateCreatesNewOrderWithTruck(): void
     {
-        $references = $this->loadFixtures([OrderFixtures::class]);
-        $truck = $references->getReference(TruckFixtures::TRUCK_5_IN_SERVICE, Truck::class);
+        $truck = $this->loadFixtures([OrderFixtures::class])
+            ->getReference(TruckFixtures::TRUCK_5_IN_SERVICE, Truck::class);
 
         $this->requestJson('POST', '/api/orders', [
             'orderNumber' => 'ORD-100',
@@ -76,8 +71,8 @@ class OrderControllerTest extends ApiTestCase
 
     public function testCreateCreatesNewOrderWithFleetSet(): void
     {
-        $references = $this->loadFixtures([OrderFixtures::class]);
-        $fleetSet = $references->getReference(FleetSetFixtures::FLEET_3, FleetSet::class);
+        $fleetSet = $this->loadFixtures([OrderFixtures::class])
+            ->getReference(FleetSetFixtures::FLEET_3, FleetSet::class);
 
         $this->requestJson('POST', '/api/orders', [
             'orderNumber' => 'ORD-200',
@@ -97,20 +92,14 @@ class OrderControllerTest extends ApiTestCase
     public function testCreateReturns422WithMissingRequiredFields(): void
     {
         $this->loadFixtures([OrderFixtures::class]);
-
-        $this->requestJson('POST', '/api/orders', [
-            'orderNumber' => 'ORD-300'
-        ]);
-
-        $this->assertResponseStatusCodeSame(422);
-        $json = $this->getJsonResponse();
-        $this->assertArrayHasKey('error', $json);
+        $this->requestJson('POST', '/api/orders', ['orderNumber' => 'ORD-300']);
+        $this->assertErrorResponse();
     }
 
     public function testCreateReturns422WithInvalidStatus(): void
     {
-        $references = $this->loadFixtures([OrderFixtures::class]);
-        $truck = $references->getReference(TruckFixtures::TRUCK_5_IN_SERVICE, Truck::class);
+        $truck = $this->loadFixtures([OrderFixtures::class])
+            ->getReference(TruckFixtures::TRUCK_5_IN_SERVICE, Truck::class);
 
         $this->requestJson('POST', '/api/orders', [
             'orderNumber' => 'ORD-400',
@@ -121,15 +110,28 @@ class OrderControllerTest extends ApiTestCase
             'startDate' => '2025-12-01 10:00:00'
         ]);
 
-        $this->assertResponseStatusCodeSame(422);
-        $json = $this->getJsonResponse();
-        $this->assertArrayHasKey('error', $json);
+        $this->assertErrorResponse();
+    }
+
+    public function testCreateReturns422WithNoAssets(): void
+    {
+        $this->loadFixtures([OrderFixtures::class]);
+
+        $this->requestJson('POST', '/api/orders', [
+            'orderNumber' => 'ORD-500',
+            'serviceType' => 'Maintenance',
+            'description' => 'Test description',
+            'status' => 'pending',
+            'startDate' => '2025-12-01 10:00:00',
+        ]);
+
+        $this->assertErrorResponse();
     }
 
     public function testCreateReturns422WithDuplicateOrderNumber(): void
     {
-        $references = $this->loadFixtures([OrderFixtures::class]);
-        $truck = $references->getReference(TruckFixtures::TRUCK_5_IN_SERVICE, Truck::class);
+        $truck = $this->loadFixtures([OrderFixtures::class])
+            ->getReference(TruckFixtures::TRUCK_5_IN_SERVICE, Truck::class);
 
         $this->requestJson('POST', '/api/orders', [
             'orderNumber' => 'ORD-001',
@@ -141,24 +143,20 @@ class OrderControllerTest extends ApiTestCase
         ]);
 
         $statusCode = $this->client->getResponse()->getStatusCode();
-        $this->assertTrue(
-            in_array($statusCode, [422, 500]),
-            'Expected 422 or 500 for duplicate order number'
-        );
-        $json = $this->getJsonResponse();
-        $this->assertArrayHasKey('error', $json);
+        $this->assertTrue(in_array($statusCode, [422, 500]));
+        $this->assertArrayHasKey('error', $this->getJsonResponse());
     }
 
     public function testUpdateModifiesOrderWithValidData(): void
     {
-        $references = $this->loadFixtures([OrderFixtures::class]);
-        $order = $references->getReference(OrderFixtures::ORDER_1_PENDING, Order::class);
+        $order = $this->loadFixtures([OrderFixtures::class])
+            ->getReference(OrderFixtures::ORDER_1_PENDING, Order::class);
 
         $this->requestJson('PUT', '/api/orders/' . $order->getId()->toRfc4122(), [
             'orderNumber' => $order->getOrderNumber(),
-            'truckId' => $order->getTruck() ? $order->getTruck()->getId()->toRfc4122() : null,
-            'trailerId' => $order->getTrailer() ? $order->getTrailer()->getId()->toRfc4122() : null,
-            'fleetSetId' => $order->getFleetSet() ? $order->getFleetSet()->getId()->toRfc4122() : null,
+            'truckId' => $order->getTruck()?->getId()->toRfc4122(),
+            'trailerId' => $order->getTrailer()?->getId()->toRfc4122(),
+            'fleetSetId' => $order->getFleetSet()?->getId()->toRfc4122(),
             'serviceType' => 'Updated Service Type',
             'description' => 'Updated description',
             'status' => 'in_progress',
@@ -167,20 +165,19 @@ class OrderControllerTest extends ApiTestCase
         ]);
 
         $this->assertResponseStatusCodeSame(200);
-        $json = $this->getJsonResponse();
-        $this->assertEquals('in_progress', $json['status']);
-        $this->assertEquals('Updated description', $json['description']);
-        $this->assertEquals('Updated Service Type', $json['serviceType']);
+        $this->assertJsonFields([
+            'status' => 'in_progress',
+            'description' => 'Updated description',
+            'serviceType' => 'Updated Service Type'
+        ]);
     }
 
     public function testDeleteRemovesOrder(): void
     {
-        $references = $this->loadFixtures([OrderFixtures::class]);
-        $order = $references->getReference(OrderFixtures::ORDER_5_PENDING, Order::class);
+        $order = $this->loadFixtures([OrderFixtures::class])
+            ->getReference(OrderFixtures::ORDER_5_PENDING, Order::class);
 
         $this->client->request('DELETE', '/api/orders/' . $order->getId()->toRfc4122());
-
         $this->assertResponseStatusCodeSame(204);
     }
 }
-

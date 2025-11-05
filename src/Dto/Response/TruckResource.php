@@ -17,13 +17,13 @@ class TruckResource
     public static function fromEntity(Truck $truck): self
     {
         $resource = new self();
-        $resource->id = $truck->getId()->toRfc4122();
+        $resource->id =                 $truck->getId()->toRfc4122();
         $resource->registrationNumber = $truck->getRegistrationNumber();
-        $resource->brand = $truck->getBrand();
-        $resource->model = $truck->getModel();
-        $resource->status = $truck->getStatus();
-        $resource->createdAt = $truck->getCreatedAt()->format('Y-m-d\TH:i:s\Z');
-        $resource->updatedAt = $truck->getUpdatedAt()->format('Y-m-d\TH:i:s\Z');
+        $resource->brand =              $truck->getBrand();
+        $resource->model =              $truck->getModel();
+        $resource->status =             $truck->getStatus();
+        $resource->createdAt =          $truck->getCreatedAt()->format('Y-m-d\TH:i:s\Z');
+        $resource->updatedAt =          $truck->getUpdatedAt()->format('Y-m-d\TH:i:s\Z');
 
         return $resource;
     }

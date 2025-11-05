@@ -21,12 +21,8 @@ readonly class DriverService
         $driver = (new Driver())
             ->setFirstName($dto->firstName)
             ->setLastName($dto->lastName)
-            ->setLicenseNumber($dto->licenseNumber);
-
-        if ($dto->fleetSetId !== null) {
-            $fleetSet = $this->fleetSetRepository->findOrFail($dto->fleetSetId);
-            $driver->setFleetSet($fleetSet);
-        }
+            ->setLicenseNumber($dto->licenseNumber)
+            ->setFleetSet($dto->fleetSetId ? $this->fleetSetRepository->findOrFail($dto->fleetSetId) : null);
 
         $this->driverRepository->save($driver, true);
 
@@ -38,15 +34,8 @@ readonly class DriverService
         $driver
             ->setFirstName($dto->firstName)
             ->setLastName($dto->lastName)
-            ->setLicenseNumber($dto->licenseNumber);
-
-        // Handle nullable fleetSet assignment (null = unassign driver)
-        if ($dto->fleetSetId !== null) {
-            $fleetSet = $this->fleetSetRepository->findOrFail($dto->fleetSetId);
-            $driver->setFleetSet($fleetSet);
-        } else {
-            $driver->setFleetSet(null);
-        }
+            ->setLicenseNumber($dto->licenseNumber)
+            ->setFleetSet($dto->fleetSetId ? $this->fleetSetRepository->findOrFail($dto->fleetSetId) : null);
 
         $this->driverRepository->save($driver, true);
 

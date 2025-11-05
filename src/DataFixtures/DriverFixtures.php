@@ -3,6 +3,7 @@
 namespace App\DataFixtures;
 
 use App\Entity\Driver;
+use App\Entity\FleetSet;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Persistence\ObjectManager;
@@ -69,7 +70,7 @@ class DriverFixtures extends Fixture implements DependentFixtureInterface
                 ->setLicenseNumber($driverData['licenseNumber']);
 
             if ($driverData['fleetSet'] !== null) {
-                $driver->setFleetSet($this->getReference($driverData['fleetSet'], \App\Entity\FleetSet::class));
+                $driver->setFleetSet($this->getReference($driverData['fleetSet'], FleetSet::class));
             }
 
             $manager->persist($driver);

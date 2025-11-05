@@ -19,34 +19,30 @@ class TrailerControllerTest extends ApiTestCase
         $json = $this->getJsonResponse();
         $this->assertIsArray($json);
         $this->assertCount(5, $json);
-        $this->assertArrayHasKey('id', $json[0]);
-        $this->assertArrayHasKey('registrationNumber', $json[0]);
+        $this->assertHasJsonKeys(['id', 'registrationNumber'], $json[0]);
     }
 
     public function testShowReturnsTrailerById(): void
     {
-        $references = $this->loadFixtures([TrailerFixtures::class]);
-        $trailer = $references->getReference(TrailerFixtures::TRAILER_1, Trailer::class);
+        $trailer = $this->loadFixtures([TrailerFixtures::class])
+            ->getReference(TrailerFixtures::TRAILER_1, Trailer::class);
 
         $this->client->request('GET', '/api/trailers/' . $trailer->getId()->toRfc4122());
 
         $this->assertResponseStatusCodeSame(200);
-        $json = $this->getJsonResponse();
-        $this->assertEquals('TRAILER-001', $json['registrationNumber']);
-        $this->assertEquals('Refrigerated', $json['type']);
-        $this->assertEquals('25.50', $json['capacity']);
-        $this->assertEquals('operational', $json['status']);
+        $this->assertJsonFields([
+            'registrationNumber' => 'TRAILER-001',
+            'type' => 'Refrigerated',
+            'capacity' => '25.50',
+            'status' => 'operational'
+        ]);
     }
 
     public function testShowReturns404WhenTrailerNotFound(): void
     {
         $this->loadFixtures([TrailerFixtures::class]);
-
-        $this->client->request('GET', '/api/trailers/123e4567-e89b-12d3-a456-426614174000');
-
-        $this->assertResponseStatusCodeSame(404);
-        $json = $this->getJsonResponse();
-        $this->assertArrayHasKey('error', $json);
+        $this->client->request('GET', '/api/trailers/' . $this->getNonExistentUuid());
+        $this->assertErrorResponse(404);
     }
 
     public function testCreateCreatesNewTrailerWithValidData(): void
@@ -61,24 +57,19 @@ class TrailerControllerTest extends ApiTestCase
         ]);
 
         $this->assertResponseStatusCodeSame(201);
-        $json = $this->getJsonResponse();
-        $this->assertEquals('TRAILER-100', $json['registrationNumber']);
-        $this->assertEquals('Refrigerated', $json['type']);
-        $this->assertEquals('30.50', $json['capacity']);
-        $this->assertEquals('operational', $json['status']);
+        $this->assertJsonFields([
+            'registrationNumber' => 'TRAILER-100',
+            'type' => 'Refrigerated',
+            'capacity' => '30.50',
+            'status' => 'operational'
+        ]);
     }
 
     public function testCreateReturns422WithMissingRequiredFields(): void
     {
         $this->loadFixtures([TrailerFixtures::class]);
-
-        $this->requestJson('POST', '/api/trailers', [
-            'type' => 'Refrigerated'
-        ]);
-
-        $this->assertResponseStatusCodeSame(422);
-        $json = $this->getJsonResponse();
-        $this->assertArrayHasKey('error', $json);
+        $this->requestJson('POST', '/api/trailers', ['type' => 'Refrigerated']);
+        $this->assertErrorResponse();
     }
 
     public function testCreateReturns422WithInvalidStatus(): void
@@ -92,9 +83,7 @@ class TrailerControllerTest extends ApiTestCase
             'status' => 'invalid_status'
         ]);
 
-        $this->assertResponseStatusCodeSame(422);
-        $json = $this->getJsonResponse();
-        $this->assertArrayHasKey('error', $json);
+        $this->assertErrorResponse();
     }
 
     public function testCreateReturns422WithDuplicateRegistrationNumber(): void
@@ -109,18 +98,14 @@ class TrailerControllerTest extends ApiTestCase
         ]);
 
         $statusCode = $this->client->getResponse()->getStatusCode();
-        $this->assertTrue(
-            in_array($statusCode, [422, 500]),
-            'Expected 422 or 500 for duplicate registration number'
-        );
-        $json = $this->getJsonResponse();
-        $this->assertArrayHasKey('error', $json);
+        $this->assertTrue(in_array($statusCode, [422, 500]));
+        $this->assertArrayHasKey('error', $this->getJsonResponse());
     }
 
     public function testUpdateModifiesTrailerWithValidData(): void
     {
-        $references = $this->loadFixtures([TrailerFixtures::class]);
-        $trailer = $references->getReference(TrailerFixtures::TRAILER_1, Trailer::class);
+        $trailer = $this->loadFixtures([TrailerFixtures::class])
+            ->getReference(TrailerFixtures::TRAILER_1, Trailer::class);
 
         $this->requestJson('PUT', '/api/trailers/' . $trailer->getId()->toRfc4122(), [
             'registrationNumber' => 'TRAILER-001-UPDATED',
@@ -130,35 +115,31 @@ class TrailerControllerTest extends ApiTestCase
         ]);
 
         $this->assertResponseStatusCodeSame(200);
-        $json = $this->getJsonResponse();
-        $this->assertEquals('TRAILER-001-UPDATED', $json['registrationNumber']);
-        $this->assertEquals('Updated Type', $json['type']);
-        $this->assertEquals('35.00', $json['capacity']);
-        $this->assertEquals('in_service', $json['status']);
+        $this->assertJsonFields([
+            'registrationNumber' => 'TRAILER-001-UPDATED',
+            'type' => 'Updated Type',
+            'capacity' => '35.00',
+            'status' => 'in_service'
+        ]);
     }
 
     public function testDeleteRemovesTrailer(): void
     {
-        $references = $this->loadFixtures([TrailerFixtures::class]);
-        $trailer = $references->getReference(TrailerFixtures::TRAILER_5_IN_SERVICE, Trailer::class);
+        $trailer = $this->loadFixtures([TrailerFixtures::class])
+            ->getReference(TrailerFixtures::TRAILER_5_IN_SERVICE, Trailer::class);
 
         $this->client->request('DELETE', '/api/trailers/' . $trailer->getId()->toRfc4122());
-
         $this->assertResponseStatusCodeSame(204);
     }
 
     public function testDeleteTrailerUsedInFleetSet(): void
     {
-        $references = $this->loadFixtures([TrailerFixtures::class, FleetSetFixtures::class]);
-        $trailer = $references->getReference(TrailerFixtures::TRAILER_1, Trailer::class);
+        $trailer = $this->loadFixtures([TrailerFixtures::class, FleetSetFixtures::class])
+            ->getReference(TrailerFixtures::TRAILER_1, Trailer::class);
 
         $this->client->request('DELETE', '/api/trailers/' . $trailer->getId()->toRfc4122());
 
         $statusCode = $this->client->getResponse()->getStatusCode();
-        $this->assertTrue(
-            in_array($statusCode, [204, 500]),
-            "Expected 204 (SQLite) or 500 (FK enforced), got {$statusCode}"
-        );
+        $this->assertTrue(in_array($statusCode, [204, 500]));
     }
 }
-
