@@ -2,6 +2,8 @@
 
 namespace App\Tests\Feature;
 
+use App\Entity\Driver;
+use App\Entity\FleetSet;
 use App\Tests\ApiTestCase;
 use App\Tests\Fixtures\DriverFixtures;
 use App\Tests\Fixtures\FleetSetFixtures;
@@ -25,7 +27,7 @@ class DriverControllerTest extends ApiTestCase
     public function testShowReturnsDriverById(): void
     {
         $references = $this->loadFixtures([DriverFixtures::class]);
-        $driver = $references->getReference(DriverFixtures::DRIVER_1, \App\Entity\Driver::class);
+        $driver = $references->getReference(DriverFixtures::DRIVER_1, Driver::class);
 
         $this->client->request('GET', '/api/drivers/' . $driver->getId()->toRfc4122());
 
@@ -67,7 +69,7 @@ class DriverControllerTest extends ApiTestCase
     public function testCreateDriverWithFleetSet(): void
     {
         $references = $this->loadFixtures([FleetSetFixtures::class]);
-        $fleetSet = $references->getReference(FleetSetFixtures::FLEET_1, \App\Entity\FleetSet::class);
+        $fleetSet = $references->getReference(FleetSetFixtures::FLEET_1, FleetSet::class);
 
         $this->requestJson('POST', '/api/drivers', [
             'firstName' => 'Fleet',
@@ -134,7 +136,7 @@ class DriverControllerTest extends ApiTestCase
     public function testUpdateModifiesDriverWithValidData(): void
     {
         $references = $this->loadFixtures([DriverFixtures::class]);
-        $driver = $references->getReference(DriverFixtures::DRIVER_1, \App\Entity\Driver::class);
+        $driver = $references->getReference(DriverFixtures::DRIVER_1, Driver::class);
 
         $this->requestJson('PUT', '/api/drivers/' . $driver->getId()->toRfc4122(), [
             'firstName' => 'Updated',
@@ -154,7 +156,7 @@ class DriverControllerTest extends ApiTestCase
     public function testDeleteRemovesDriver(): void
     {
         $references = $this->loadFixtures([DriverFixtures::class]);
-        $driver = $references->getReference(DriverFixtures::DRIVER_8, \App\Entity\Driver::class);
+        $driver = $references->getReference(DriverFixtures::DRIVER_8, Driver::class);
 
         $this->client->request('DELETE', '/api/drivers/' . $driver->getId()->toRfc4122());
 

@@ -2,9 +2,13 @@
 
 namespace App\Tests\Feature;
 
+use App\Entity\FleetSet;
 use App\Entity\Order;
+use App\Entity\Truck;
 use App\Tests\ApiTestCase;
+use App\Tests\Fixtures\FleetSetFixtures;
 use App\Tests\Fixtures\OrderFixtures;
+use App\Tests\Fixtures\TruckFixtures;
 
 class OrderControllerTest extends ApiTestCase
 {
@@ -26,7 +30,7 @@ class OrderControllerTest extends ApiTestCase
     public function testShowReturnsOrderById(): void
     {
         $references = $this->loadFixtures([OrderFixtures::class]);
-        $order = $references->getReference(OrderFixtures::ORDER_1_PENDING, \App\Entity\Order::class);
+        $order = $references->getReference(OrderFixtures::ORDER_1_PENDING, Order::class);
 
         $this->client->request('GET', '/api/orders/' . $order->getId()->toRfc4122());
 
@@ -51,7 +55,7 @@ class OrderControllerTest extends ApiTestCase
     public function testCreateCreatesNewOrderWithTruck(): void
     {
         $references = $this->loadFixtures([OrderFixtures::class]);
-        $truck = $references->getReference(\App\Tests\Fixtures\TruckFixtures::TRUCK_5_IN_SERVICE, \App\Entity\Truck::class);
+        $truck = $references->getReference(TruckFixtures::TRUCK_5_IN_SERVICE, Truck::class);
 
         $this->requestJson('POST', '/api/orders', [
             'orderNumber' => 'ORD-100',
@@ -73,7 +77,7 @@ class OrderControllerTest extends ApiTestCase
     public function testCreateCreatesNewOrderWithFleetSet(): void
     {
         $references = $this->loadFixtures([OrderFixtures::class]);
-        $fleetSet = $references->getReference(\App\Tests\Fixtures\FleetSetFixtures::FLEET_3, \App\Entity\FleetSet::class);
+        $fleetSet = $references->getReference(FleetSetFixtures::FLEET_3, FleetSet::class);
 
         $this->requestJson('POST', '/api/orders', [
             'orderNumber' => 'ORD-200',
@@ -106,7 +110,7 @@ class OrderControllerTest extends ApiTestCase
     public function testCreateReturns422WithInvalidStatus(): void
     {
         $references = $this->loadFixtures([OrderFixtures::class]);
-        $truck = $references->getReference(\App\Tests\Fixtures\TruckFixtures::TRUCK_5_IN_SERVICE, \App\Entity\Truck::class);
+        $truck = $references->getReference(TruckFixtures::TRUCK_5_IN_SERVICE, Truck::class);
 
         $this->requestJson('POST', '/api/orders', [
             'orderNumber' => 'ORD-400',
@@ -125,7 +129,7 @@ class OrderControllerTest extends ApiTestCase
     public function testCreateReturns422WithDuplicateOrderNumber(): void
     {
         $references = $this->loadFixtures([OrderFixtures::class]);
-        $truck = $references->getReference(\App\Tests\Fixtures\TruckFixtures::TRUCK_5_IN_SERVICE, \App\Entity\Truck::class);
+        $truck = $references->getReference(TruckFixtures::TRUCK_5_IN_SERVICE, Truck::class);
 
         $this->requestJson('POST', '/api/orders', [
             'orderNumber' => 'ORD-001',
@@ -172,7 +176,7 @@ class OrderControllerTest extends ApiTestCase
     public function testDeleteRemovesOrder(): void
     {
         $references = $this->loadFixtures([OrderFixtures::class]);
-        $order = $references->getReference(OrderFixtures::ORDER_5_PENDING, \App\Entity\Order::class);
+        $order = $references->getReference(OrderFixtures::ORDER_5_PENDING, Order::class);
 
         $this->client->request('DELETE', '/api/orders/' . $order->getId()->toRfc4122());
 

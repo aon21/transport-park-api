@@ -2,8 +2,13 @@
 
 namespace App\Tests\Feature;
 
+use App\Entity\FleetSet;
+use App\Entity\Trailer;
+use App\Entity\Truck;
 use App\Tests\ApiTestCase;
 use App\Tests\Fixtures\FleetSetFixtures;
+use App\Tests\Fixtures\TrailerFixtures;
+use App\Tests\Fixtures\TruckFixtures;
 
 class FleetSetControllerTest extends ApiTestCase
 {
@@ -26,7 +31,7 @@ class FleetSetControllerTest extends ApiTestCase
     public function testShowReturnsFleetSetById(): void
     {
         $references = $this->loadFixtures([FleetSetFixtures::class]);
-        $fleetSet = $references->getReference(FleetSetFixtures::FLEET_1, \App\Entity\FleetSet::class);
+        $fleetSet = $references->getReference(FleetSetFixtures::FLEET_1, FleetSet::class);
 
         $this->client->request('GET', '/api/fleet-sets/' . $fleetSet->getId()->toRfc4122());
 
@@ -52,8 +57,8 @@ class FleetSetControllerTest extends ApiTestCase
     public function testCreateCreatesNewFleetSetWithValidData(): void
     {
         $references = $this->loadFixtures([FleetSetFixtures::class]);
-        $truck = $references->getReference(\App\Tests\Fixtures\TruckFixtures::TRUCK_5_IN_SERVICE, \App\Entity\Truck::class);
-        $trailer = $references->getReference(\App\Tests\Fixtures\TrailerFixtures::TRAILER_5_IN_SERVICE, \App\Entity\Trailer::class);
+        $truck = $references->getReference(TruckFixtures::TRUCK_5_IN_SERVICE, Truck::class);
+        $trailer = $references->getReference(TrailerFixtures::TRAILER_5_IN_SERVICE, Trailer::class);
 
         $this->requestJson('POST', '/api/fleet-sets', [
             'name' => 'Fleet Epsilon',
@@ -84,7 +89,7 @@ class FleetSetControllerTest extends ApiTestCase
     public function testCreateReturns404WithInvalidTruckId(): void
     {
         $references = $this->loadFixtures([FleetSetFixtures::class]);
-        $trailer = $references->getReference(\App\Tests\Fixtures\TrailerFixtures::TRAILER_5_IN_SERVICE, \App\Entity\Trailer::class);
+        $trailer = $references->getReference(TrailerFixtures::TRAILER_5_IN_SERVICE, Trailer::class);
 
         $this->requestJson('POST', '/api/fleet-sets', [
             'name' => 'Invalid Truck Fleet',
@@ -100,7 +105,7 @@ class FleetSetControllerTest extends ApiTestCase
     public function testCreateReturns404WithInvalidTrailerId(): void
     {
         $references = $this->loadFixtures([FleetSetFixtures::class]);
-        $truck = $references->getReference(\App\Tests\Fixtures\TruckFixtures::TRUCK_5_IN_SERVICE, \App\Entity\Truck::class);
+        $truck = $references->getReference(TruckFixtures::TRUCK_5_IN_SERVICE, Truck::class);
 
         $this->requestJson('POST', '/api/fleet-sets', [
             'name' => 'Invalid Trailer Fleet',
@@ -116,9 +121,9 @@ class FleetSetControllerTest extends ApiTestCase
     public function testUpdateModifiesFleetSetWithValidData(): void
     {
         $references = $this->loadFixtures([FleetSetFixtures::class]);
-        $fleetSet = $references->getReference(FleetSetFixtures::FLEET_1, \App\Entity\FleetSet::class);
-        $truck = $references->getReference(\App\Tests\Fixtures\TruckFixtures::TRUCK_1, \App\Entity\Truck::class);
-        $trailer = $references->getReference(\App\Tests\Fixtures\TrailerFixtures::TRAILER_2, \App\Entity\Trailer::class);
+        $fleetSet = $references->getReference(FleetSetFixtures::FLEET_1, FleetSet::class);
+        $truck = $references->getReference(TruckFixtures::TRUCK_1, Truck::class);
+        $trailer = $references->getReference(TrailerFixtures::TRAILER_2, Trailer::class);
 
         $this->requestJson('PUT', '/api/fleet-sets/' . $fleetSet->getId()->toRfc4122(), [
             'name' => 'Updated Fleet Name',
@@ -136,7 +141,7 @@ class FleetSetControllerTest extends ApiTestCase
     public function testDeleteRemovesFleetSet(): void
     {
         $references = $this->loadFixtures([FleetSetFixtures::class]);
-        $fleetSet = $references->getReference(FleetSetFixtures::FLEET_3, \App\Entity\FleetSet::class);
+        $fleetSet = $references->getReference(FleetSetFixtures::FLEET_3, FleetSet::class);
 
         $this->client->request('DELETE', '/api/fleet-sets/' . $fleetSet->getId()->toRfc4122());
 

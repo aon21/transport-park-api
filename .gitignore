@@ -11,3 +11,8 @@ coverage/
 .phpunit.cache
 /coverage
 /docs
+
+###> phpunit/phpunit ###
+/phpunit.xml
+/.phpunit.cache/
+###< phpunit/phpunit ###
