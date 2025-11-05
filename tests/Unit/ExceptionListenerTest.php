@@ -4,7 +4,6 @@ namespace App\Tests\Unit;
 
 use App\EventListener\ExceptionListener;
 use PHPUnit\Framework\TestCase;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
@@ -14,152 +13,73 @@ use Symfony\Component\HttpKernel\KernelEvents;
 
 class ExceptionListenerTest extends TestCase
 {
+    private function handleException(\Throwable $exception, string $env = 'prod'): array
+    {
+        $listener = new ExceptionListener($env);
+        $kernel = $this->createMock(HttpKernelInterface::class);
+        $event = new ExceptionEvent($kernel, new Request(), HttpKernelInterface::MAIN_REQUEST, $exception);
+        
+        $listener->onKernelException($event);
+        
+        return [
+            json_decode($event->getResponse()->getContent(), true),
+            $event->getResponse()->getStatusCode()
+        ];
+    }
+
     public function testGetSubscribedEvents(): void
     {
         $events = ExceptionListener::getSubscribedEvents();
 
-        $this->assertIsArray($events);
         $this->assertArrayHasKey(KernelEvents::EXCEPTION, $events);
         $this->assertEquals('onKernelException', $events[KernelEvents::EXCEPTION]);
     }
 
-    public function testNotFoundHttpExceptionWithObjectNotFoundMessage(): void
+    public function testNotFoundHttpException(): void
     {
-        $listener = new ExceptionListener('prod');
-        $exception = new NotFoundHttpException('Some object not found details');
-        $event = $this->createExceptionEvent($exception);
-
-        $listener->onKernelException($event);
-
-        $response = $event->getResponse();
-        $this->assertInstanceOf(JsonResponse::class, $response);
-        $this->assertEquals(404, $response->getStatusCode());
-
-        $content = json_decode($response->getContent(), true);
+        [$content, $status] = $this->handleException(new NotFoundHttpException('Some object not found'));
+        $this->assertEquals(404, $status);
         $this->assertEquals('Resource not found', $content['error']);
-    }
 
-    public function testNotFoundHttpExceptionWithCustomMessage(): void
-    {
-        $listener = new ExceptionListener('prod');
-        $exception = new NotFoundHttpException('Driver not found');
-        $event = $this->createExceptionEvent($exception);
-
-        $listener->onKernelException($event);
-
-        $response = $event->getResponse();
-        $this->assertInstanceOf(JsonResponse::class, $response);
-        $this->assertEquals(404, $response->getStatusCode());
-
-        $content = json_decode($response->getContent(), true);
+        [$content, $status] = $this->handleException(new NotFoundHttpException('Driver not found'));
+        $this->assertEquals(404, $status);
         $this->assertEquals('Driver not found', $content['error']);
     }
 
-    public function testHttpExceptionInDevModeWithMessage(): void
+    public function testHttpExceptionDevMode(): void
     {
-        $listener = new ExceptionListener('dev');
-        $exception = new BadRequestHttpException('Invalid input data');
-        $event = $this->createExceptionEvent($exception);
+        [$content, $status] = $this->handleException(new BadRequestHttpException('Invalid input'), 'dev');
+        $this->assertEquals(400, $status);
+        $this->assertEquals('Invalid input', $content['error']);
 
-        $listener->onKernelException($event);
-
-        $response = $event->getResponse();
-        $this->assertInstanceOf(JsonResponse::class, $response);
-        $this->assertEquals(400, $response->getStatusCode());
-
-        $content = json_decode($response->getContent(), true);
-        $this->assertEquals('Invalid input data', $content['error']);
-    }
-
-    public function testHttpExceptionInDevModeWithEmptyMessage(): void
-    {
-        $listener = new ExceptionListener('dev');
-        $exception = new BadRequestHttpException('');
-        $event = $this->createExceptionEvent($exception);
-
-        $listener->onKernelException($event);
-
-        $response = $event->getResponse();
-        $this->assertInstanceOf(JsonResponse::class, $response);
-        $this->assertEquals(400, $response->getStatusCode());
-
-        $content = json_decode($response->getContent(), true);
+        [$content, $status] = $this->handleException(new BadRequestHttpException(''), 'dev');
         $this->assertEquals('An error occurred', $content['error']);
     }
 
-    public function testHttpExceptionInProductionMode(): void
+    public function testHttpExceptionProductionMode(): void
     {
-        $listener = new ExceptionListener('prod');
-        $exception = new BadRequestHttpException('Sensitive error details');
-        $event = $this->createExceptionEvent($exception);
-
-        $listener->onKernelException($event);
-
-        $response = $event->getResponse();
-        $this->assertInstanceOf(JsonResponse::class, $response);
-        $this->assertEquals(400, $response->getStatusCode());
-
-        $content = json_decode($response->getContent(), true);
+        [$content, $status] = $this->handleException(new BadRequestHttpException('Sensitive details'));
+        $this->assertEquals(400, $status);
         $this->assertEquals('An error occurred', $content['error']);
     }
 
-    public function testGenericExceptionInDevMode(): void
+    public function testGenericExceptionDevMode(): void
     {
-        $listener = new ExceptionListener('dev');
-        $exception = new \RuntimeException('Database connection failed');
-        $event = $this->createExceptionEvent($exception);
-
-        $listener->onKernelException($event);
-
-        $response = $event->getResponse();
-        $this->assertInstanceOf(JsonResponse::class, $response);
-        $this->assertEquals(500, $response->getStatusCode());
-
-        $content = json_decode($response->getContent(), true);
-        $this->assertEquals('Database connection failed', $content['error']);
+        [$content, $status] = $this->handleException(new \RuntimeException('Database failed'), 'dev');
+        $this->assertEquals(500, $status);
+        $this->assertEquals('Database failed', $content['error']);
     }
 
-    public function testGenericExceptionInProductionMode(): void
+    public function testGenericExceptionProductionMode(): void
     {
-        $listener = new ExceptionListener('prod');
-        $exception = new \RuntimeException('Sensitive system error');
-        $event = $this->createExceptionEvent($exception);
-
-        $listener->onKernelException($event);
-
-        $response = $event->getResponse();
-        $this->assertInstanceOf(JsonResponse::class, $response);
-        $this->assertEquals(500, $response->getStatusCode());
-
-        $content = json_decode($response->getContent(), true);
+        [$content, $status] = $this->handleException(new \RuntimeException('Sensitive error'));
+        $this->assertEquals(500, $status);
         $this->assertEquals('Internal server error', $content['error']);
     }
 
     public function testTestEnvironmentIsNotDebug(): void
     {
-        $listener = new ExceptionListener('test');
-        $exception = new \RuntimeException('Test error message');
-        $event = $this->createExceptionEvent($exception);
-
-        $listener->onKernelException($event);
-
-        $response = $event->getResponse();
-        $content = json_decode($response->getContent(), true);
-
+        [$content] = $this->handleException(new \RuntimeException('Test error'), 'test');
         $this->assertEquals('Internal server error', $content['error']);
     }
-
-    private function createExceptionEvent(\Throwable $exception): ExceptionEvent
-    {
-        $kernel = $this->createMock(HttpKernelInterface::class);
-        $request = new Request();
-
-        return new ExceptionEvent(
-            $kernel,
-            $request,
-            HttpKernelInterface::MAIN_REQUEST,
-            $exception
-        );
-    }
 }
-
