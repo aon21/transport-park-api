@@ -3,7 +3,8 @@
 /.env.*.local
 /config/secrets/prod/prod.decrypt.private.php
 /public/bundles/
-/var/
+/var/data/*
+/var/cache
 /vendor/
 /memory_docs
 .idea/
