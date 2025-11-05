@@ -35,6 +35,9 @@ php bin/console doctrine:migrations:migrate
 
 # Load sample data
 php bin/console doctrine:fixtures:load
+
+# Start the server
+symfony serve
 ```
 ### Entities
 
